@@ -1,10 +1,7 @@
-from dataclasses import dataclass
-
-
-@dataclass
 class Student:
-    github: str
-    name: str
-    group: str
-    chat_id: str
 
+    def __init__(self, chat_id: str):
+        self.chat_id: str = chat_id
+        self.github_urls: dict = {}
+        self.name: str = ""
+        self.group: str = ""
