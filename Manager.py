@@ -1,4 +1,5 @@
 from typing import List, Dict
+from typing import List, Dict, Tuple
 from Connection import Connection
 from Course import Course
 from Group import Group
@@ -16,23 +17,21 @@ class Manager:
         self.names_range = (5, 27)
         # TODO: Read groups from file
     
-    def read_names(self, group: Group) -> List[str]:
+    def read_names(self, group: Group) -> None:
         start, end = self.names_range
         random_course_table = list(group.courses.items())[0]
-        table = self.connection.read(f"A{start}:B{end}", random_course_table) # <- полное говно
+        table = self.connection.read(f"A{start}:B{end}", random_course_table)
         names = []
         for name in table:
             if name[0] == "Вольнослушатели:":
                 break
             names.append(Student(None, name[0], group.number, None))
         group.students = names
-        print(names)
-
 
     def addGroup(self, number: str, courses):
-        self.groups.append(Group(number, [], courses))
+        self.groups[number] = Group(number, [], courses)
 
-    def read_current_tasks(self, student):
+    def read_current_tasks(self):
         return None
 
     def read_tasks(self, group: Group, name: str):
@@ -47,20 +46,25 @@ class Manager:
         return tasks_list
 
     def get_students(self, number: str) -> List[Student]:
-        group = self.get_group(number)
+        group = self.groups[number]
         return group.students
 
-    def get_group(self, number: str):
-        for group in self.groups:
-            if group.number == number:
-                return group
-        return None
+    def get_cell(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
+        students = [st.name for st in group.students]
+        position = students.index(student.name)
+        row = str(self.names_range[0] + position)
+        start = "C"
+        column = chr(ord(start) + int(task) - 1)
+        return row, column
+
+    def write(self, student: Student, task: str, course_name: str) -> None:
+        group = self.groups[student.group]
+        table_id = group.courses[course_name].table_id_students
+        row, column = self.get_cell(student, group, task)
+        self.connection.write(column + row, table_id, "п")
 
 
 if __name__ == "__main__":
     manager = Manager()
     manager.read_tasks(Group("", [], {"A": Course("A", [], "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "")}), "A")
-
-
-
-        
+       
