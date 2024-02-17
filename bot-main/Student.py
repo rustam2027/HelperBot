@@ -6,3 +6,4 @@ class Student:
     github: str
     name: str
     group: str
+

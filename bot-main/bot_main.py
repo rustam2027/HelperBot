@@ -1,10 +1,14 @@
 import telebot
 from telebot import types
 
+# import Manager
+
 TOKEN: str = '6924911833:AAEkGGKgCG-F91EWpJqXOnB7XqYJvhQ0wlA'
 
 bot = telebot.TeleBot(TOKEN)
-groups = []
+
+
+# manager = new Manager()
 
 
 @bot.message_handler(commands=['send pic'])
@@ -22,22 +26,36 @@ def start(message: types.Message):
                           "Это телеграм-бот для сдачи задач по курсам на нашем профиле.")
     send_message(message, "Для начала тебе нужно пройти регистрацию.")
 
+    # TODO: check 4 groups
+    # groups_list = manager.get_groups()
+    groups_list = ["22126", "23126"]
     markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton(text='22126', callback_data="22126")
-    btn2 = types.InlineKeyboardButton(text='23126', callback_data="23126")
-
-    markup.add(btn1, btn2)
+    for group in groups_list:
+        btn = types.InlineKeyboardButton(text=group, callback_data=group)
+        # btn = types.InlineKeyboardButton(text=group.number, callback_data=group.number)
+        markup.add(btn)
 
     bot.send_message(message.chat.id, "Выбери свою группу:", reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda button: str.isdigit(button.data))
 def get_group(group: types.CallbackQuery):
-    match group:
-        case "22126":
-            pass
-        case "23126":
-            pass
+    # students = manager.get_students(group.data)
+    markup = types.InlineKeyboardMarkup()
+    students = ["Mark Boe", "Maria Vasko", "Taisia Petruneva", "Baldeem"]
+
+    for student in students:
+        btn = types.InlineKeyboardButton(text=student, callback_data=student)
+        # btn = types.InlineKeyboardButton(text=student.name, callback_data=student.name)
+        markup.add(btn)
+
+    bot.send_message(message.chat.id, "Выбери себя:", reply_markup=markup)
+
+    # match group.data:
+    #     case "22126":
+    #         bot.send_message(group.message.chat.id, "22126")
+    #     case "23126":
+    #         bot.send_message(group.message.chat.id, "23126")
     msg = "Good job!"
     bot.send_message(group.message.chat.id, msg)
 
