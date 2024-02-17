@@ -35,7 +35,7 @@ class Manager:
         for name in table:
             if name[0] == "Вольнослушатели:":
                 break
-            names.append(Student("", name[0], group.number, []))
+            names.append(Student("", "", name[0], group.number, []))
         group.students = names
 
     def addGroup(self, number: str, courses):
@@ -85,8 +85,8 @@ class Manager:
     def receive(self, student: Student, task: str, course_name: str):
         group = self.groups[student.group]
         self.write(student, group, task, course_name, "п")
-        table_id = group.courses[course_name].table_id_teachers
-        self.connection.app("A2", table_id, task)
+        # table_id = group.courses[course_name].table_id_teachers
+        # self.connection.app("A2", table_id, task)
 
     def write(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
@@ -99,8 +99,8 @@ if __name__ == "__main__":
     manager = Manager()
     manager.read_tasks(manager.groups["22126"], "A")
     manager.read_names(manager.groups["22126"])
-    student = Student("", "Колбасова Любовь Сергеевна", "22126", [])
-    manager.receive(student, "3", "A")
+    student = Student("", "", "Колбасова Любовь Сергеевна", "22126", [])
+    manager.receive(student, "12", "A")
     result = manager.connection.read("F2", id_in)
     print(result)
     print(manager.read_current_tasks(student, "A"))
