@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from dataclasses import dataclass
 from Student import Student
 from Course import Course
@@ -8,7 +8,7 @@ from Course import Course
 class Group:
     number: str
     students: List[Student]
-    courses: List[Course]
+    courses: Dict[Course]
 
     def get_semester(self):
         admission_year = self.number[0:1]
