@@ -1,11 +1,13 @@
-from typing import List
+from typing import List, Tuple
 from dataclasses import dataclass
+from Student import Student
 
 
 @dataclass
 class Group:
     number: str
     students: List[Student]
+    courses: List[Tuple[str, str]]
 
     def get_semester(self):
         admission_year = self.number[0:1]
