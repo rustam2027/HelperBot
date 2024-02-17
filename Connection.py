@@ -45,16 +45,16 @@ class Connection:
         self.service = build("sheets", "v4", credentials=self.creds)
 
 
-    def read_names(self, range: str, sheet_id: str):
+    def read(self, range: str, sheet_id: str):
         resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
-        print(resp)
-
+        name_list = [name[0] for name in resp["values"]]
+        return name_list       
 
 
 if __name__ == "__main__":
     conn = Connection()
     conn.connect()
-    conn.read_names("A1:C2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+    conn.read_names("A1:A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
 
         
 
