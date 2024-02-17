@@ -32,9 +32,9 @@ class Manager:
         self.groups[number] = Group(number, [], courses)
 
     def read_current_tasks(self, student: Student, course_name: str):
-        tasks: List[int] = self.read_tasks(self.groups[student.group], course_name)
-        
-        return None
+        group = self.groups[student.group]
+        tasks: List[int] = self.read_tasks(group, course_name)
+
 
     def read_tasks(self, group: Group, name: str):
         result = self.connection.read("C3:AA4", group.courses[name].table_id_students)
