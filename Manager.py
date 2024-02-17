@@ -20,7 +20,7 @@ class Manager:
     def read_names(self) -> List[str]:
         table = self.connection.read(
             "A5:B30", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
-        
+
         print(table)
 
     def read_current_tasks(self, student):
@@ -30,9 +30,13 @@ class Manager:
         pass
 
     def get_students(self, number: str) -> List[Student]:
+        group = self.get_group(number)
+        return group.students
+
+    def get_group(self, number: str):
         for group in self.groups:
             if group.number == number:
-                return group.students
+                return group
         return None
 
 
