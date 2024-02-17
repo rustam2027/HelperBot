@@ -8,6 +8,9 @@ from Student import Student
 
 from logger import log
 
+id_out = "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k"
+id_in = "1eaxlXT7RoH5A_sRlgGGSj2oG7aWkVo4dap5EYhDpTBw"
+
 
 class Manager:
     groups: Dict[str, Group]
@@ -17,14 +20,14 @@ class Manager:
         log("Initing Manager")
         self.connection = Connection()
         self.connection.connect()
-        self.groups = {"22126": Group("", [], {"A": Course("A", [], "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "")})}
+        self.groups = {"22126": Group("", [], {"A": Course("A", [], id_out, "")})}
         self.names_range = (5, 27)
         # TODO: Read groups from file
 
     def read_names(self, group: Group) -> None:
         log(f"Manager: Reading names for group {group}")
         start, end = self.names_range
-        random_course_table = group.courses["A"].table_id_students
+        random_course_table = list(group.courses.values())[0].table_id_students
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
         names = []
         for name in table:
@@ -47,13 +50,13 @@ class Manager:
         log(f"Manager: Reading tasks for group {group.number} course {name}")
         result = self.connection.read(
             "C3:AA4", group.courses[name].table_id_students)
-        print(result[0])  # May be error
+        # print(result[0])  # May be error
         tasks_list = []
         i = 0
         while i < len(result[0]) and result[0][i].isdigit():
             tasks_list.append(result[0][i])
             i += 1
-        print(tasks_list)
+        # print(tasks_list)
         return tasks_list
 
     def get_students(self, number: str) -> List[Student]:
@@ -80,5 +83,8 @@ if __name__ == "__main__":
     manager = Manager()
     manager.read_tasks(manager.groups["22126"], "A")
     manager.read_names(manager.groups["22126"])
-    student = Student("", "Васько Мария Богдановна", "22126", [])
+    student = Student("", "Колбасова Любовь Сергеевна", "22126", [])
     manager.write(student, "1", "A")
+
+    result = manager.connection.read("F2", id_in)
+    print(result)
