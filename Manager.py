@@ -38,9 +38,13 @@ class Manager:
         pass
 
     def get_students(self, number: str) -> List[Student]:
+        group = self.get_group(number)
+        return group.students
+
+    def get_group(self, number: str):
         for group in self.groups:
             if group.number == number:
-                return group.students
+                return group
         return None
 
 
