@@ -1,9 +1,12 @@
-from typing import List, Dict
 from typing import List, Dict, Tuple
+
 from Connection import Connection
+
 from Course import Course
 from Group import Group
 from Student import Student
+
+from logger import log
 
 
 class Manager:
@@ -11,13 +14,15 @@ class Manager:
     connection: Connection
 
     def __init__(self):
+        log("Initing Manager")
         self.connection = Connection()
         self.connection.connect()
         self.groups = dict()
         self.names_range = (5, 27)
         # TODO: Read groups from file
-    
+
     def read_names(self, group: Group) -> None:
+        log(f"Manager: Reading names for group {group}")
         start, end = self.names_range
         random_course_table = group.courses.items()[0].table_id_students
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
@@ -29,15 +34,19 @@ class Manager:
         group.students = names
 
     def addGroup(self, number: str, courses):
+        log(f"Manager: adding group {number} with courses {courses}")
         self.groups[number] = Group(number, [], courses)
 
     def read_current_tasks(self, student: Student, course_name: str):
-        tasks: List[int] = self.read_tasks(self.groups[student.group], course_name)
-        
+        tasks: List[int] = self.read_tasks(
+            self.groups[student.group], course_name)
+
         return None
 
     def read_tasks(self, group: Group, name: str):
-        result = self.connection.read("C3:AA4", group.courses[name].table_id_students)
+        log(f"Manager: Reading tasks for group {group.number} course {name}")
+        result = self.connection.read(
+            "C3:AA4", group.courses[name].table_id_students)
         print(result[0])  # May be error
         tasks_list = []
         i = 0
@@ -60,6 +69,7 @@ class Manager:
         return row, column
 
     def write(self, student: Student, task: str, course_name: str) -> None:
+        log(f"Manager: Writing for {Student.name}, course name {course_name}, number {task} ")
         group = self.groups[student.group]
         table_id = group.courses[course_name].table_id_students
         row, column = self.get_cell(student, group, task)
@@ -68,5 +78,5 @@ class Manager:
 
 if __name__ == "__main__":
     manager = Manager()
-    manager.read_tasks(Group("", [], {"A": Course("A", [], "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "")}), "A")
-       
+    manager.read_tasks(Group("", [], {"A": Course(
+        "A", [], "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "")}), "A")

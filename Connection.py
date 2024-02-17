@@ -1,17 +1,13 @@
 import os.path
-import datetime
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+from logger import log
+
 AUTH_SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
-
-
-def log(string: str) -> None:
-    time = datetime.datetime.now().strftime("%H:%M:%S")
-    print(f"[{time}]: {string}")
 
 
 class Connection:
@@ -24,7 +20,8 @@ class Connection:
         log("Connecting")
         if os.path.exists("token.json"):
             log("File 'token.json' found!")
-            self.creds = Credentials.from_authorized_user_file("token.json", AUTH_SCOPE)
+            self.creds = Credentials.from_authorized_user_file(
+                "token.json", AUTH_SCOPE)
         if not self.creds or not self.creds.valid:
             log("File 'token.json' not found or not valid!")
             if self.creds and self.creds.expired and self.creds.refresh_token:
@@ -46,7 +43,8 @@ class Connection:
     def read(self, range: str, sheet_id: str):
         try:
             log(f"Reading from table, sheet_id: {sheet_id}, range: {range}")
-            resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
+            resp = self.service.spreadsheets().values().get(
+                spreadsheetId=sheet_id, range=range).execute()
             return resp["values"]
         except:
             raise RuntimeError("Error in reed")
@@ -62,7 +60,8 @@ class Connection:
             ]
         }
         # can control updates
-        self.service.spreadsheets().values().batchUpdate(spreadsheetId=sheet_id, body=body).execute()   
+        self.service.spreadsheets().values().batchUpdate(
+            spreadsheetId=sheet_id, body=body).execute()
 
 
 if __name__ == "__main__":
@@ -71,7 +70,3 @@ if __name__ == "__main__":
     data = conn.read("A1:A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
     print(data)
     conn.write("A2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "yyyy")
-
-
-        
-
