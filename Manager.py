@@ -1,6 +1,7 @@
-from Typing import List
+from typing import List
 from Connection import Connection
 from Group import Group
+from Student import Student
 
 
 class Manager:
@@ -18,7 +19,8 @@ class Manager:
 
     def read_names(self) -> List[str]:
         table = self.connection.read(
-            "A5:B27", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+            "A5:B30", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+        
         print(table)
 
     def read_current_tasks(self, student):
@@ -27,7 +29,13 @@ class Manager:
     def read_tasks(self):
         pass
 
+    def get_students(self, number: str) -> List[Student]:
+        for group in self.groups:
+            if group.number == number:
+                return group.students
+        return None
+
 
 if __name__ == "__main__":
     manager = Manager()
-    manager.
+    manager.read_names()
