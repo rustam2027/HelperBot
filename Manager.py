@@ -54,21 +54,16 @@ class Manager:
 
         return answer
 
-
-
-        return None
-
     def read_tasks(self, group: Group, name: str):
         log(f"Manager: Reading tasks for group {group.number} course {name}")
         result = self.connection.read(
             "C3:AA4", group.courses[name].table_id_students)
-        print(result[0])  # May be error
+        # May be error
         tasks_list = []
         i = 0
         while i < len(result[0]) and result[0][i].isdigit():
             tasks_list.append(result[0][i])
             i += 1
-        print(tasks_list)
         return tasks_list
 
     def get_students(self, number: str) -> List[Student]:
