@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from dataclasses import dataclass
 from Student import Student
 
@@ -7,7 +7,7 @@ from Student import Student
 class Group:
     number: str
     students: List[Student]
-    courses: List[Tuple[str, str]]
+    courses: dict
 
     def get_semester(self):
         admission_year = self.number[0:1]
