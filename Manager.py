@@ -13,6 +13,17 @@ class Manager:
         self.connection.connect()
         self.groups = []
         # TODO: Read groups from file
+    
+    def read_names(self, group: Group) -> List[str]:
+        table = self.connection.read("A5:B27", group.courses[0][1])
+        names = []
+        for name in table:
+            if name[0] == "Вольнослушатели:":
+                break
+            names.append(Student(None, name[0], group.number, None))
+        group.students = names
+        print(names)
+
 
     def addGroup(self, number: str, courses):
         self.groups.append(Group(number, [], courses))
@@ -24,7 +35,7 @@ class Manager:
         print(table)
 
     def read_current_tasks(self, student):
-        pass
+        return None
 
     def read_tasks(self):
         pass
@@ -42,4 +53,8 @@ class Manager:
 
 if __name__ == "__main__":
     manager = Manager()
-    manager.read_names()
+    manager.read_names(192392)
+
+
+
+        
