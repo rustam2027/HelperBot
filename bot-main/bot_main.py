@@ -4,6 +4,7 @@ from telebot import types
 TOKEN: str = '6924911833:AAEkGGKgCG-F91EWpJqXOnB7XqYJvhQ0wlA'
 
 bot = telebot.TeleBot(TOKEN)
+groups = []
 
 
 @bot.message_handler(commands=['send pic'])
@@ -30,11 +31,15 @@ def start(message: types.Message):
     bot.send_message(message.chat.id, "Выбери свою группу:", reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda call: True)
-def sendText(callback: types.CallbackQuery):
-    msg = "aljalefjerfj"
-
-    bot.send_message(callback.message.chat.id, msg)
+@bot.callback_query_handler(func=lambda button: str.isdigit(button.data))
+def get_group(group: types.CallbackQuery):
+    match group:
+        case "22126":
+            pass
+        case "23126":
+            pass
+    msg = "Good job!"
+    bot.send_message(group.message.chat.id, msg)
 
 
 bot.polling(none_stop=True, interval=0)
