@@ -20,8 +20,10 @@ class Manager:
         log("Initing Manager")
         self.connection = Connection()
         self.connection.connect()
-        self.groups = {"22126": Group("", [], {"A": Course("A", [], id_out, "")})}
+        self.groups = {"22126": Group("", [], {"A": Course("A", [], id_out, id_in)})}
         self.names_range = (5, 27)
+        self.internal_start = 2
+
         # TODO: Read groups from file
 
     def read_names(self, group: Group) -> None:
@@ -54,7 +56,6 @@ class Manager:
         for i in range(len(all_tasks)):
             if i >= len(result) or result[i] == "":
                 answer.append(all_tasks[i])
-
         return answer
 
     def read_tasks(self, group: Group, name: str):
@@ -82,12 +83,17 @@ class Manager:
         column = chr(ord(start) + int(task) - 1)
         return row, column
 
-    def write(self, student: Student, task: str, course_name: str) -> None:
-        log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
+    def receive(self, student: Student, task: str, course_name: str):
         group = self.groups[student.group]
+        self.write(student, group, task, course_name, "п")
+        table_id = group.courses[course_name].table_id_teachers
+        self.connection.app("A2", table_id, task)
+
+    def write(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
+        log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
         table_id = group.courses[course_name].table_id_students
         row, column = self.get_cell(student, group, task)
-        self.connection.write(column + row, table_id, "п")
+        self.connection.write(column + row, table_id, value)
 
 
 if __name__ == "__main__":
@@ -95,7 +101,7 @@ if __name__ == "__main__":
     manager.read_tasks(manager.groups["22126"], "A")
     manager.read_names(manager.groups["22126"])
     student = Student("", "Колбасова Любовь Сергеевна", "22126", [])
-    manager.write(student, "1", "A")
+    manager.receive(student, "3", "A")
     result = manager.connection.read("F2", id_in)
     print(result)
     print(manager.read_current_tasks(student, "A"))
