@@ -17,20 +17,20 @@ class Manager:
         log("Initing Manager")
         self.connection = Connection()
         self.connection.connect()
-        self.groups = dict()
+        self.groups = {"22126": Group("", [], {"A": Course("A", [], "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "")})}
         self.names_range = (5, 27)
         # TODO: Read groups from file
 
     def read_names(self, group: Group) -> None:
         log(f"Manager: Reading names for group {group}")
         start, end = self.names_range
-        random_course_table = group.courses.items()[0].table_id_students
+        random_course_table = group.courses["A"].table_id_students
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
         names = []
         for name in table:
             if name[0] == "Вольнослушатели:":
                 break
-            names.append(Student(None, name[0], group.number, None))
+            names.append(Student("", name[0], group.number, []))
         group.students = names
 
     def addGroup(self, number: str, courses):
@@ -69,7 +69,7 @@ class Manager:
         return row, column
 
     def write(self, student: Student, task: str, course_name: str) -> None:
-        log(f"Manager: Writing for {Student.name}, course name {course_name}, number {task} ")
+        log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
         group = self.groups[student.group]
         table_id = group.courses[course_name].table_id_students
         row, column = self.get_cell(student, group, task)
@@ -78,5 +78,7 @@ class Manager:
 
 if __name__ == "__main__":
     manager = Manager()
-    manager.read_tasks(Group("", [], {"A": Course(
-        "A", [], "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "")}), "A")
+    manager.read_tasks(manager.groups["22126"], "A")
+    manager.read_names(manager.groups["22126"])
+    student = Student("", "Васько Мария Богдановна", "22126", [])
+    manager.write(student, "1", "A")
