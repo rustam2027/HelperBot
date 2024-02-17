@@ -24,7 +24,7 @@ class Manager:
     def read_names(self, group: Group) -> None:
         log(f"Manager: Reading names for group {group}")
         start, end = self.names_range
-        random_course_table = group.courses["A"].table_id_students
+        random_course_table = list(group.courses.values())[0].table_id_students
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
         names = []
         for name in table:
@@ -38,8 +38,23 @@ class Manager:
         self.groups[number] = Group(number, [], courses)
 
     def read_current_tasks(self, student: Student, course_name: str):
-        tasks: List[int] = self.read_tasks(
-            self.groups[student.group], course_name)
+        group = self.groups[student.group]
+        students = group.students
+        all_tasks = self.read_tasks(group, course_name)
+        for i in range(len(students)):
+            if students[i].name == student.name:
+                break
+        num = i 
+        start, end = self.names_range
+        result = self.connection.read(f"C{start + num}:S{start + num}", group.courses[course_name].table_id_students)[0]
+        answer = []
+        for i in range(len(all_tasks)):
+            if i >= len(result) or result[i] == "":
+                answer.append(all_tasks[i])
+
+        return answer
+
+
 
         return None
 
@@ -82,3 +97,4 @@ if __name__ == "__main__":
     manager.read_names(manager.groups["22126"])
     student = Student("", "Васько Мария Богдановна", "22126", [])
     manager.write(student, "1", "A")
+    print(manager.read_current_tasks(student, "A"))
