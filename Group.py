@@ -8,7 +8,7 @@ from Course import Course
 class Group:
     number: str
     students: List[Student]
-    courses: Dict[Course]
+    courses: Dict[str, Course]
 
     def get_semester(self):
         admission_year = self.number[0:1]

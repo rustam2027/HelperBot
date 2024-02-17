@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from Connection import Connection
 from Group import Group
 from Student import Student
@@ -36,24 +36,28 @@ class Manager:
         pass
 
     def get_students(self, number: str) -> List[Student]:
-        group = self.get_group(number)
+        group = self.groups[number]
         return group.students
 
-    def get_group(self, number: str):
-        return self.groups[number]
-
-    def get_cell(self, student: Student, group: Group, task: str) -> str:
+    def get_cell(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
         students = [st.name for st in group.students]
         position = students.index(student.name)
-        return str(self.names_range[0] + position)
+        row = str(self.names_range[0] + position)
+        start = "C"
+        column = chr(ord(start) + int(task) - 1)
+        return row, column
 
     def write(self, student: Student, task: str, course_name: str) -> None:
-        group = self.get_group(student.group)
-        table_id = group.courses[course_name]
-        self.connection.write("C" + self.get_cell(student, group, task), table_id, "п")
+        group = self.groups[student.group]
+        table_id = group.courses[course_name].table_id_students
+        row, column = self.get_cell(student, group, task)
+        self.connection.write(column + row, table_id, "п")
 
 
 if __name__ == "__main__":
     manager = Manager()
-    manager.read_names(192392)
+    # manager.read_names(192392)
+    student = Student("", "Волк Александр Николаевич", "22126", [])
+
+
     # manager.write()
