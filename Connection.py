@@ -46,9 +46,16 @@ class Connection:
 
 
     def read(self, range: str, sheet_id: str):
+        log(f"Reading from table, sheet_id: {sheet_id}, range: {range}")
         resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
         name_list = [name[0] for name in resp["values"]]
-        return name_list       
+        return name_list     
+
+    def read_names():
+        pass
+
+    def read_tasks():
+        pass  
 
 
 if __name__ == "__main__":
