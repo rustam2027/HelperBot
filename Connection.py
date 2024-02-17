@@ -20,7 +20,6 @@ class Connection:
         self.creds = None
         self.service = None
 
-
     def connect(self):
         log("Connecting")
         if os.path.exists("token.json"):
@@ -44,17 +43,31 @@ class Connection:
 
         self.service = build("sheets", "v4", credentials=self.creds)
 
-
     def read(self, range: str, sheet_id: str):
         resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
-        name_list = [name[0] for name in resp["values"]]
-        return name_list       
+        return resp["values"]
+
+    def write(self, range: str, sheet_id: str, data: str) -> None:
+        log(f"Writing to table, sheet_id: {sheet_id}, range: {range}, data: {data}")
+        body = {
+            'valueInputOption': 'RAW',
+            'data': [
+                {'range': range, 'values': [
+                    [data]
+                ]}
+            ]
+        }
+        # can control updates
+        self.service.spreadsheets().values().batchUpdate(spreadsheetId=sheet_id, body=body).execute()
 
 
 if __name__ == "__main__":
     conn = Connection()
     conn.connect()
-    conn.read_names("A1:A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+    data = conn.read("A1:A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+    print(data)
+    conn.write("A2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "yyyy")
+
 
         
 
