@@ -44,9 +44,12 @@ class Connection:
         self.service = build("sheets", "v4", credentials=self.creds)
 
     def read(self, range: str, sheet_id: str):
-        log(f"Reading from table, sheet_id: {sheet_id}, range: {range}")
-        resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
-        return resp["values"]
+        try:
+            log(f"Reading from table, sheet_id: {sheet_id}, range: {range}")
+            resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
+            return resp["values"]
+        except:
+            raise RuntimeError("Error in reed")
 
     def write(self, range: str, sheet_id: str, data: str) -> None:
         log(f"Writing to table, sheet_id: {sheet_id}, range: {range}, data: {data}")
