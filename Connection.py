@@ -9,11 +9,13 @@ from googleapiclient.errors import HttpError
 AUTH_SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
+
 class Connection:
 
     def __init__(self):
         self.creds = None
         self.service = None
+
 
     def connect(self):
         if os.path.exists("token.json"):
@@ -33,6 +35,16 @@ class Connection:
         self.service = build("sheets", "v4", credentials=self.creds)
 
 
+    def read_names(self, range: str, sheet_id: str):
+        resp = self.service.spreadsheets().values().get(spreadsheetId=sheet_id, range=range).execute()
+        print(resp)
+
+
+
 if __name__ == "__main__":
     conn = Connection()
     conn.connect()
+    conn.read_names("A1:C2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+
+        
+
