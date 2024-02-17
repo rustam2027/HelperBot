@@ -19,7 +19,7 @@ class Manager:
     
     def read_names(self, group: Group) -> None:
         start, end = self.names_range
-        random_course_table = list(group.courses.items())[0]
+        random_course_table = group.courses.items()[0].table_id_students
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
         names = []
         for name in table:
@@ -31,7 +31,9 @@ class Manager:
     def addGroup(self, number: str, courses):
         self.groups[number] = Group(number, [], courses)
 
-    def read_current_tasks(self):
+    def read_current_tasks(self, student: Student, course_name: str):
+        tasks: List[int] = self.read_tasks(self.groups[student.group], course_name)
+        
         return None
 
     def read_tasks(self, group: Group, name: str):
