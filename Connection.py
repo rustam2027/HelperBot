@@ -27,6 +27,9 @@ class Connection:
                 )
                 self.creds = flow.run_local_server(port=0)
 
+        with open("token.json", "w") as token:
+            token.write(self.creds.to_json())
+
         self.service = build("sheets", "v4", credentials=self.creds)
 
 
