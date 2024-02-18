@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from logger import log, log_error
-
+from typing import Tuple
 AUTH_SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
@@ -16,6 +16,18 @@ class Connection:
     def __init__(self):
         self.creds = None
         self.service = None
+
+    def __get_row_and_column__(self, cell: str) -> Tuple[str, str]:
+        # this function doesnt work with cell with more than one letter 
+        row = ""
+        i = 0
+        while cell[i].isalpha():
+            row += cell[i]
+            i += 1
+        column = cell[i:]
+
+    
+        return(int(column) - 1, ord(row) - 65) 
 
     def connect(self):
         log("Connecting")
@@ -85,10 +97,56 @@ class Connection:
                 log_error(f"Error: range {range} is invalid!")
         log_error("Exit!")
         exit(0)
+    
+    def copy(self, start_cell, end_cell, sheet_id):
+        start_row, start_column =  self.__get_row_and_column__(start_cell)
+        end_row, end_column = self.__get_row_and_column__(end_cell)
+
+        
+
+        source_start_row_index = start_row
+        source_end_row_index = start_row + 1
+        source_start_column_index = start_column
+        source_end_column_index = start_column + 1
+
+
+        destination_start_row_index = end_row
+        destination_end_row_index = end_row + 1
+        destination_start_column_index = end_column
+        destination_end_column_index = end_column + 1
+
+
+
+        batch_update_spreadsheet_request_body = {
+            "requests": [
+                {
+                    "copyPaste": {
+                        "source": {
+                            "sheetId": 0,
+                            "startRowIndex": source_start_row_index,
+                            "endRowIndex": source_end_row_index,
+                            "startColumnIndex": source_start_column_index,
+                            "endColumnIndex": source_end_column_index
+                        },
+                        "destination": {
+                            "sheetId": 0,
+                            "startRowIndex": destination_start_row_index,
+                            "endRowIndex": destination_end_row_index,
+                            "startColumnIndex": destination_start_column_index,
+                            "endColumnIndex": destination_end_column_index
+                        },
+                        "pasteType": "PASTE_FORMULA"
+                    }
+                }
+            ]
+        }
+        print(batch_update_spreadsheet_request_body)
+        self.service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=batch_update_spreadsheet_request_body).execute()
 
 
 if __name__ == "__main__":
-    conn = Connection()
-    conn.connect()
-    data = conn.read("A1:8A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
-    conn.write("A2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "yyyy")
+    con = Connection()
+    con.connect()
+    # data = conn.read("A1:A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
+    # conn.write("A2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "yyyy")
+    con.copy("F18", "F19", "1eaxlXT7RoH5A_sRlgGGSj2oG7aWkVo4dap5EYhDpTBw")

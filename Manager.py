@@ -22,7 +22,7 @@ class Manager:
         self.connection.connect()
         self.groups = {}
         self._init_groups()
-        self.names_range = (5, 27)
+        self.names_range = (5, 60)
         self.internal_start = 2
 
         for group in self.groups.keys():
@@ -51,7 +51,7 @@ class Manager:
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
         names = []
         for name in table:
-            if name[0] == "Вольнослушатели:":
+            if name[0] == "Вольнослушатели:" or name[0] == "Максимальный балл за задачу":
                 break
             names.append(Student("", "", name[0], group.number, []))
         group.students = names
