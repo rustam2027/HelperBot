@@ -56,11 +56,6 @@ class Manager:
             names.append(Student({}, None, name[0], group.number, None))
         group.students = names
 
-    def addGroup(self, number: str, courses):
-        log(f"Manager: adding group {number} with courses {courses}")
-
-        self.groups[number] = Group(number, [], courses)
-
     def read_current_tasks(self, student: Student, course_name: str):
         log(
             f"Manager: Reading current tasks for student {student.name}, for course {course_name}")
@@ -126,7 +121,7 @@ class Manager:
         table_id = group.courses[course_name].table_id_students
         row, column = self._get_cell_(student, group, task)
 
-        self.connection.write(column + row, table_id, value)
+        self.connection._write(column + row, table_id, value)
 
 
 def test_1():
@@ -161,5 +156,9 @@ def test_5():
 
 if __name__ == "__main__":
     manager = Manager()
+    test_1()
+    test_2()
+    test_3()
+    test_4()
     test_5()
 
