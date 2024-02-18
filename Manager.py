@@ -10,12 +10,6 @@ from Data.Student import Student
 
 from logger import log
 
-id_out = "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k"
-id_in = "1eaxlXT7RoH5A_sRlgGGSj2oG7aWkVo4dap5EYhDpTBw"
-
-GROUPS = {"22126": Group(
-    "", [], {"A": Course("A", [], id_out, id_in)})}
-
 
 class Manager:
     groups: Dict[str, Group]
@@ -76,11 +70,9 @@ class Manager:
 
         all_tasks = self.read_tasks(group, course_name)
         i = 0
-
         for i in range(len(students)):
             if students[i].name == student.name:
                 break
-
         num = i
         start, _ = self.names_range
 
@@ -98,9 +90,7 @@ class Manager:
         result = self.connection.read(
             "C3:AA4", group.courses[name].table_id_students)
 
-        # May be error
         tasks_list = []
-
         i = 0
         while i < len(result[0]) and result[0][i].isdigit():
             tasks_list.append(result[0][i])
@@ -143,12 +133,12 @@ class Manager:
 if __name__ == "__main__":
     manager = Manager()
     manager.read_tasks(manager.groups["22126"], "Algorithms")
-    manager._read_names_(manager.groups["22126"])
-    for group in manager.groups.keys():
-        for student in manager.groups[group].students:
-            print(student)
-    student = Student(
-        "@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", [])
-    manager.receive(student, "13", "Algorithms")
-    result = manager.connection.read("F2", id_in)
-    print(manager.read_current_tasks(student, "Algorithms"))
+    student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    student_2 = Student("@huiiii", "@HUIII", "Салимов Рустам Аскарович", "22126", None)
+    manager.receive(student_1, "1", "Algorithms")
+    manager.receive(student_2, "1", "C++")
+
+    # print(manager.read_current_tasks(student_1, "Algorithms"))
+    # for group in manager.groups.keys():
+    #     for student in manager.groups[group].students:
+    #         print(student)

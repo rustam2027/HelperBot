@@ -56,9 +56,7 @@ class Connection:
         body = {
             'valueInputOption': 'RAW',
             'data': [
-                {'range': range, 'values': [
-                    [data]
-                ]}
+                {'range': range, 'values': [[data]]}
             ]
         }
         # can control updates
