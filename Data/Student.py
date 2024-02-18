@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List 
 
 
 @dataclass
@@ -8,4 +7,15 @@ class Student:
     tg: str
     name: str
     group: str
-    tasks: List[str]
+
+
+"""
+class Student:
+
+    def __init__(self, chat_id: str):
+        self.chat_id: str = chat_id
+        self.tg: str = ""
+        self.github: dict = {}
+        self.name: str = ""
+        self.group: str = ""
+"""

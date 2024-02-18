@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 import re
 
-from Student import Student
+from Data.Student import Student
 
 # import Manager
 
@@ -37,7 +37,7 @@ def send_message(user_message: types.Message, bot_message: str, markup=None):
 
 @bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    students_info[message.chat.id] = Student(str(message.chat.id))
+    students_info[message.chat.id] = Student(str(message.chat.id)) # TODO: Не создавать объект а использовать из group
 
     send_message(message, "Привет!\nДобро пожаловать на Системное Программирование!\n"
                           "Это телеграм-бот для сдачи задач по курсам на нашем профиле.")
@@ -100,7 +100,7 @@ def get_repositories(message, courses, count, student: Student):
     if message.text != "Время скинуть ссылки на репозитории!":
         user_url = message.text
         ex_count = count + 1
-        student.github_urls[courses[ex_count]] = user_url
+        student.github[courses[ex_count]] = user_url
 
     # if check_github_url(message, courses, count, student):
     #     print("valid!!")
@@ -161,7 +161,7 @@ def check_github_url(user_message: types.Message, courses, count, student: Stude
 def print_student(student: Student):
     print("Имя: ", student.name)
     print("Группа: ", student.group)
-    print("Репозитории: ", student.github_urls)
+    print("Репозитории: ", student.github)
     print("ID: ", student.chat_id)
 
 
