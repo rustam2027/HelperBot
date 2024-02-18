@@ -22,7 +22,7 @@ class Manager:
         self.connection = Connection()
         self.connection.connect()
         self.groups = {"22126": Group(
-            "", [], {"A": Course("A", [], id_out, id_in)})} # TODO: Delete
+            "", [], {"A": Course("A", [], id_out, id_in)})}  # TODO: Delete
         self.names_range = (5, 27)
         self.internal_start = 2
 
@@ -47,7 +47,8 @@ class Manager:
         self.groups[number] = Group(number, [], courses)
 
     def read_current_tasks(self, student: Student, course_name: str):
-        log(f"Manager: Reading current tasks for student {student.name}, for course {course_name}")
+        log(
+            f"Manager: Reading current tasks for student {student.name}, for course {course_name}")
 
         group = self.groups[student.group]
         students = group.students
@@ -77,6 +78,7 @@ class Manager:
 
         # May be error
         tasks_list = []
+
         i = 0
         while i < len(result[0]) and result[0][i].isdigit():
             tasks_list.append(result[0][i])
@@ -99,15 +101,20 @@ class Manager:
         log(f"Manager: Reciecing task {task}, from {student}, at course {course_name}")
 
         group = self.groups[student.group]
+
         self.write(student, group, task, course_name, "п")
+
         table_id = group.courses[course_name].table_id_teachers
+
         self.connection.app(
             "A2", table_id, [[task, student.name, student.tg, student.github]])
 
     def write(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
+
         table_id = group.courses[course_name].table_id_students
         row, column = self.get_cell(student, group, task)
+
         self.connection.write(column + row, table_id, value)
 
 
