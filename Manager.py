@@ -11,6 +11,9 @@ from logger import log
 id_out = "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k"
 id_in = "1eaxlXT7RoH5A_sRlgGGSj2oG7aWkVo4dap5EYhDpTBw"
 
+GROUPS = {"22126": Group(
+    "", [], {"A": Course("A", [], id_out, id_in)})}
+
 
 class Manager:
     groups: Dict[str, Group]
@@ -21,15 +24,17 @@ class Manager:
 
         self.connection = Connection()
         self.connection.connect()
-        self.groups = {"22126": Group(
-            "", [], {"A": Course("A", [], id_out, id_in)})}  # TODO: Delete
+        self.groups = GROUPS
         self.names_range = (5, 27)
         self.internal_start = 2
 
+        for group in self.groups.keys():
+            self._read_names_(self.groups[group])
+
         # TODO: Read groups from file
 
-    def read_names(self, group: Group) -> None:
-        log(f"Manager: Reading names for group {group}")
+    def _read_names_(self, group: Group) -> None:
+        log(f"Manager: Reading names for group {group.number}")
 
         start, end = self.names_range
         random_course_table = list(group.courses.values())[0].table_id_students
@@ -54,13 +59,14 @@ class Manager:
         students = group.students
 
         all_tasks = self.read_tasks(group, course_name)
+        i = 0
 
         for i in range(len(students)):
             if students[i].name == student.name:
                 break
 
         num = i
-        start, end = self.names_range
+        start, _ = self.names_range
 
         result = self.connection.read(
             f"C{start + num}:S{start + num}", group.courses[course_name].table_id_students)[0]
@@ -89,7 +95,7 @@ class Manager:
         group = self.groups[number]
         return group.students
 
-    def get_cell(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
+    def _get_cell_(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
         students = [st.name for st in group.students]
         position = students.index(student.name)
         row = str(self.names_range[0] + position)
@@ -102,18 +108,18 @@ class Manager:
 
         group = self.groups[student.group]
 
-        self.write(student, group, task, course_name, "п")
+        self._write_(student, group, task, course_name, "п")
 
         table_id = group.courses[course_name].table_id_teachers
 
         self.connection.app(
-            "A2", table_id, [[task, student.name, student.tg, student.github]])
+            "A2", table_id, [[task, student.name, student.tg, student.github, "", "не распределена"]])
 
-    def write(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
+    def _write_(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
 
         table_id = group.courses[course_name].table_id_students
-        row, column = self.get_cell(student, group, task)
+        row, column = self._get_cell_(student, group, task)
 
         self.connection.write(column + row, table_id, value)
 
@@ -121,9 +127,9 @@ class Manager:
 if __name__ == "__main__":
     manager = Manager()
     manager.read_tasks(manager.groups["22126"], "A")
-    manager.read_names(manager.groups["22126"])
+    manager._read_names_(manager.groups["22126"])
     for group in manager.groups.keys():
-        for student in manager.groups[group]:
+        for student in manager.groups[group].students:
             print(student)
     student = Student(
         "@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", [])
