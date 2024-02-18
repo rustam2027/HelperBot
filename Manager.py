@@ -2,9 +2,9 @@ from typing import List, Dict, Tuple
 
 from Connection import Connection
 
-from Course import Course
-from Group import Group
-from Student import Student
+from Data.Course import Course
+from Data.Group import Group
+from Data.Student import Student
 
 from logger import log
 
