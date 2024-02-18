@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import telebot
 from telebot import types
 import re
@@ -88,16 +90,20 @@ def get_student(student: types.CallbackQuery):
     manager.groups[group_number].students[student_number] = current_student
     students_info[student.from_user.id] = current_student
 
+@dataclass
+class Request:
+    url: str
 
 def get_repositories(message, courses: list, count: int, student: Student):
     if message.text != "Время скинуть ссылки на репозитории!":
-        user_url = message.text
+        request = Request(None)
+        check_github_url(message, request)
+        while(request.url is None):
+            continue
+        user_url = request.url
         ex_count = count + 1
         print(student.github)
         student.github[courses[ex_count]] = user_url
-
-    # if check_github_url(message, courses, count, student):
-    #     print("valid!!")
 
     if count >= 0:
         msg = bot.send_message(message.chat.id, f"Скинь ссылку на репозиторий по предмету {courses[count]}")
@@ -109,6 +115,17 @@ def get_repositories(message, courses: list, count: int, student: Student):
         print_student(student)
         # TODO: function in manager to give them Student
     # return None
+
+
+# TODO: make it work correctly
+def check_github_url(user_message: types.Message, request: Request):
+    github_link_regex = r'(https?:\/\/)github\.com\/(.+?)\/'
+
+    if not re.match(github_link_regex, user_message.text):
+        msg = bot.send_message(user_message.chat.id, "Ссылка невалидная! Попробуй еще раз!")
+        bot.register_next_step_handler(msg, check_github_url, request)
+    else:
+        request.url = user_message.text
 
 
 # Function to provide a poll with multiple answering options for users
@@ -140,17 +157,7 @@ def handle_user_answers(message):
     bot.reply_to(message, response)
 
 
-# TODO: make it work correctly
-def check_github_url(user_message: types.Message, courses, count, student: Student):
-    github_link_regex = r'^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9](?:-?[a-zA-Z0-9])*(?:\/[a-zA-Z0-9](?:-?[a-zA-Z0-9])*)*$'
-    # github_link_regex = "https://github.com/rustam2027/HelperBot/blob/google_connection/Manager.py"
 
-    if not re.match(github_link_regex, user_message.text):
-        # send_message(user_message, "Ссылка невалидная! Попробуй еще раз!")
-        msg = bot.send_message(user_message.chat.id, "Ссылка невалидная! Попробуй еще раз!")
-        bot.register_next_step_handler(msg, get_repositories, courses, count, student)
-        return False
-    return True
 
 
 def print_student(student: Student):
