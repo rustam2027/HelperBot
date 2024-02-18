@@ -109,7 +109,7 @@ class Manager:
         return row, column
 
     def receive(self, student: Student, task: str, course_name: str):
-        log(f"Manager: Reciecing task {task}, from {student}, at course {course_name}")
+        log(f"Manager: Reciecing task {task}, from {student.name}, at course {course_name}")
 
         group = self.groups[student.group]
 
