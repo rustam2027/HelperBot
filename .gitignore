@@ -8,3 +8,6 @@ token.json
 
 __pycache__/Course.cpython-311.pyc
 __pycache__/logger.cpython-311.pyc
+Data/__pycache__/Course.cpython-311.pyc
+Data/__pycache__/Group.cpython-311.pyc
+Data/__pycache__/Student.cpython-311.pyc
