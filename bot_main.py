@@ -12,7 +12,6 @@ TOKEN: str = '6924911833:AAEkGGKgCG-F91EWpJqXOnB7XqYJvhQ0wlA'
 
 bot = telebot.TeleBot(TOKEN)
 
-
 manager = Manager()
 
 
@@ -37,69 +36,64 @@ def send_message(user_message: types.Message, bot_message: str, markup=None):
 
 @bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    students_info[message.chat.id] = Student(str(message.chat.id))  # TODO: Не создавать объект а использовать из group
-
     send_message(message, "Привет!\nДобро пожаловать на Системное Программирование!\n"
                           "Это телеграм-бот для сдачи задач по курсам на нашем профиле.")
     send_message(message, "Для начала тебе нужно пройти регистрацию.")
 
-    # groups_list = manager.groups.keys()
-    groups_list = ["22126", "23126"]
+    groups_list = manager.groups.values()
 
     markup = types.InlineKeyboardMarkup()
     for group in groups_list:
-        btn = types.InlineKeyboardButton(text=group, callback_data=group)
-        # btn = types.InlineKeyboardButton(text=group.number, callback_data=group.number)
+        btn = types.InlineKeyboardButton(text=group.number, callback_data=group.number)
         markup.add(btn)
 
     send_message(message, "Выбери свою группу:", markup)
 
 
-@bot.callback_query_handler(func=lambda group_button: group_button.data.endswith("126"))
+# @bot.message_handler(commands=['tasks'])
+# def pass_tasks(message: types.Message):
+
+
+@bot.callback_query_handler(func=lambda group_button: group_button.data.endswith("126") and len(group_button.data) == 5)
 def get_group(group: types.CallbackQuery):
-    # students = manager.get_students(group.data)
-    students_info[group.message.chat.id].group = group.data
-
+    print(group.data)
+    students: list[Student] = manager.get_students(group.data)
     markup = types.InlineKeyboardMarkup()
-    students = ["Mark Boe", "Maria Vasko", "Taisia Petruneva", "Baldeem"]
 
-    for student in students:
-        btn = types.InlineKeyboardButton(text=student, callback_data=student)
-        # btn = types.InlineKeyboardButton(text=student.name, callback_data=student.name)
+    for i, student in enumerate(students):
+        btn = types.InlineKeyboardButton(text=student.name, callback_data=f"{i} {group.data}")
         markup.add(btn)
 
     bot.send_message(group.message.chat.id, "Выбери себя:", reply_markup=markup)
 
 
-def no_numbers(input_string: str):
-    return not bool(re.search(r'\d', input_string))
+def student_check(str_student: str):
+    return len(str_student) > 5 and re.match("^[0-9 ]+$", str_student)
 
 
-@bot.callback_query_handler(func=lambda student_button: no_numbers(student_button.data))
+@bot.callback_query_handler(func=lambda student_button: student_check(student_button.data))
 def get_student(student: types.CallbackQuery):
-    current_student = students_info[student.message.chat.id]
-    current_student.name = student.data
+    student_number, group_number = student.data.split()
+    student_number = int(student_number)
+    student_tg = '@' + student.from_user.username
+    courses = list(manager.groups[group_number].courses.keys())  # dict
 
-    # students_info[student.message.chat.id].name = student.data
-    # group_number = students_info[student.message.chat.id].group
-    # courses = manager.groups[group_number].courses  # dict
-
-    courses = {'Алгоритмы': None, "C++": None}
-    courses = ["Алгоритмы", "С++", "ИОС"]
     count = len(courses) - 1
     msg = bot.send_message(student.message.chat.id, "Время скинуть ссылки на репозитории!")
 
+    current_student = manager.groups[group_number].students[student_number]
+    current_student.tg = student_tg
     get_repositories(msg, courses, count, current_student)
 
-    students_info[student.message.chat.id] = current_student
+    manager.groups[group_number].students[student_number] = current_student
+    students_info[student.from_user.id] = current_student
 
-    # print_student(current_student)
 
-
-def get_repositories(message, courses, count, student: Student):
+def get_repositories(message, courses: list, count: int, student: Student):
     if message.text != "Время скинуть ссылки на репозитории!":
         user_url = message.text
         ex_count = count + 1
+        print(student.github)
         student.github[courses[ex_count]] = user_url
 
     # if check_github_url(message, courses, count, student):
@@ -114,6 +108,7 @@ def get_repositories(message, courses, count, student: Student):
         students_info[student.chat_id] = student
         print_student(student)
         # TODO: function in manager to give them Student
+    # return None
 
 
 # Function to provide a poll with multiple answering options for users
