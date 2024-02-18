@@ -49,6 +49,7 @@ def start(message: types.Message):
         btn = types.InlineKeyboardButton(text=group.number, callback_data=group.number)
         markup.add(btn)
 
+    handle_multiple_answer_poll(message)
     send_message(message, "Выбери свою группу:", markup)
 
 
@@ -71,10 +72,14 @@ def get_tasks(course: types.CallbackQuery):
     course_current = course.data.split()[1]
     unresolved_tasks = manager.read_current_tasks(student, course_current)
     markup = types.InlineKeyboardMarkup()
-    for task in unresolved_tasks:
-        btn = types.InlineKeyboardButton(text=task, callback_data=f'task {course_current} {task}')
-        markup.add(btn)
-    bot.send_message(course.from_user.id, "Выбери задачу:", reply_markup=markup)
+    if len(unresolved_tasks) == 0:
+        bot.send_message(course.from_user.id, "Все задачи сданы! Молодец!")
+    else:
+        for task in unresolved_tasks:
+            btn = types.InlineKeyboardButton(text=task, callback_data=f'task {course_current} {task}')
+            markup.add(btn)
+        bot.send_message(course.from_user.id, "Выбери задачу:", reply_markup=markup)
+
 
 
 def check_correct_task(user_input: str):
@@ -165,33 +170,25 @@ def check_github_url(user_message: types.Message, request: Request):
 # Function to provide a poll with multiple answering options for users
 @bot.poll_answer_handler(func=lambda x: True)
 def provide_multiple_answer_poll(chat_id):
-    poll_question = "Which programming languages do you know?"
-    options = ["Python", "JavaScript", "Java", "C++", "Ruby", "ИОС", "фцувфцувуцв", "выацувфцв"]
+    options = ["/start", "/help", "/tasks", "/reset"]
 
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=False, selective=True)
     for option in options:
         button = types.KeyboardButton(option)
         markup.add(button)
 
-    bot.send_message(chat_id, poll_question, reply_markup=markup)
-
-
-# Handler for the command /multiple_answer_poll
-@bot.message_handler(commands=['multiple_answer_poll'])
+# @bot.message_handler(commands=['mult_choice'])
 def handle_multiple_answer_poll(message):
     chat_id = message.chat.id
     provide_multiple_answer_poll(chat_id)
 
 
 # Handler for processing user answers in the poll
-@bot.message_handler(func=lambda message: True)
-def handle_user_answers(message):
-    user_answers = message.text.split('\n')
-    response = f"Your answers: {', '.join(user_answers)}"
-    bot.reply_to(message, response)
-
-
-
+# @bot.message_handler(func=lambda message: True)
+# def handle_user_answers(message):
+#     user_answers = message.text.split('\n')
+#     response = f"Your answers: {', '.join(user_answers)}"
+#     bot.reply_to(message, response)
 
 
 def print_student(student: Student):
