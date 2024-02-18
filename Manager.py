@@ -85,7 +85,7 @@ class Manager:
                 answer.append(all_tasks[i])
         return answer
 
-    def read_tasks(self, group: Group, name: str):
+    def read_tasks(self, group: Group, name: str) -> List:
         log(f"Manager: Reading tasks for group {group.number} course {name}")
         result = self.connection.read(
             "C3:AA4", group.courses[name].table_id_students)
@@ -130,15 +130,30 @@ class Manager:
         self.connection.write(column + row, table_id, value)
 
 
-if __name__ == "__main__":
-    manager = Manager()
-    manager.read_tasks(manager.groups["22126"], "Algorithms")
+def test_1():
     student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
     student_2 = Student("@huiiii", "@HUIII", "Салимов Рустам Аскарович", "22126", None)
-    manager.receive(student_1, "1", "Algorithms")
-    manager.receive(student_2, "1", "C++")
+    manager.receive(student_1, "4", "Algorithms")
+    manager.receive(student_2, "4", "C++")
 
-    # print(manager.read_current_tasks(student_1, "Algorithms"))
-    # for group in manager.groups.keys():
-    #     for student in manager.groups[group].students:
-    #         print(student)
+
+def test_2():
+    student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    print(manager.read_current_tasks(student_1, "Algorithms"))
+    print(manager.read_current_tasks(student_1, "C++"))
+
+
+def test_3():
+    for group in manager.groups.keys():
+        for student in manager.groups[group].students:
+            print(student)
+
+
+def test_4():
+    print(manager.read_tasks(manager.groups["22126"], "Algorithms"))
+
+
+if __name__ == "__main__":
+    manager = Manager()
+    test_1()
+
