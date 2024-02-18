@@ -53,7 +53,7 @@ class Manager:
         for name in table:
             if name[0] == "Вольнослушатели:" or name[0] == "Максимальный балл за задачу":
                 break
-            names.append(Student("", "", name[0], group.number, []))
+            names.append(Student({}, None, name[0], group.number, None))
         group.students = names
 
     def addGroup(self, number: str, courses):
@@ -87,8 +87,7 @@ class Manager:
 
     def read_tasks(self, group: Group, name: str) -> List:
         log(f"Manager: Reading tasks for group {group.number} course {name}")
-        result = self.connection.read(
-            "C3:AA4", group.courses[name].table_id_students)
+        result = self.connection.read("C3:AA4", group.courses[name].table_id_students)
 
         tasks_list = []
         i = 0
@@ -119,7 +118,7 @@ class Manager:
         table_id = group.courses[course_name].table_id_teachers
 
         self.connection.app(
-            "A2", table_id, [[task, student.name, student.tg, student.github, "", "не распределена"]])
+            "A2", table_id, [[task, student.name, student.tg, student.github[course_name], "", "не распределена"]])
 
     def _write_(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
@@ -131,14 +130,14 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
-    student_2 = Student("@huiiii", "@HUIII", "Салимов Рустам Аскарович", "22126", None)
+    student_1 = Student({"Algorithms": "Hui"}, "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    student_2 = Student({"C++": "HHUUI"}, "@HUIII", "Салимов Рустам Аскарович", "22126", None)
     manager.receive(student_1, "4", "Algorithms")
     manager.receive(student_2, "4", "C++")
 
 
 def test_2():
-    student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    student_1 = Student({"Algorithms": "1", "C++": "2"}, "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
     print(manager.read_current_tasks(student_1, "Algorithms"))
     print(manager.read_current_tasks(student_1, "C++"))
 
@@ -153,7 +152,14 @@ def test_4():
     print(manager.read_tasks(manager.groups["22126"], "Algorithms"))
 
 
+def test_5():
+    student_1 = Student({"Algorithms": "1"}, "@HUI", "Жуков Иван Андреевич", "23126", None)
+    student_2 = Student({"Algorithms": "4"}, "@HUIII", "Путинцев Андрей Алексеевич", "23126", None)
+    manager.receive(student_1, "3", "Algorithms")
+    manager.receive(student_2, "3", "Algorithms")
+
+
 if __name__ == "__main__":
     manager = Manager()
-    test_1()
+    test_5()
 
