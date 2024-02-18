@@ -62,25 +62,16 @@ class Connection:
         # can control updates
         self.service.spreadsheets().values().batchUpdate(
             spreadsheetId=sheet_id, body=body).execute()
-    
-    def app(self, range: str, sheet_id: str, data: str):
-        log(f"Writing to table, sheet_id: {sheet_id}, range: {range}, data: {data}")
-        body = {
-            'valueInputOption': 'RAW',
-            'data': [
-                {'range': range, 'values': [
-                    [data]
-                ]}
-            ]
-        }
-        self.service.spreadsheets().values().append(spreadsheetId=sheet_id, body=body).execute()
-        
-    
+
+    def app(self, range: str, sheet_id: str, data: list):
+        log(f"Appending to table, sheet_id: {sheet_id}, range: {range}, data: {data}")
+        body = {"values": data}
+        self.service.spreadsheets().values().append(
+            spreadsheetId=sheet_id, valueInputOption="USER_ENTERED", range=range, body=body).execute()
 
 
 if __name__ == "__main__":
     conn = Connection()
     conn.connect()
     data = conn.read("A1:A5", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k")
-    print(data)
     conn.write("A2", "1mVc9THvtGtvRmK1tIaXkzxk2Cgy82BqWMWcRlO_PA6k", "yyyy")

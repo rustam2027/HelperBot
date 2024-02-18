@@ -18,9 +18,11 @@ class Manager:
 
     def __init__(self):
         log("Initing Manager")
+
         self.connection = Connection()
         self.connection.connect()
-        self.groups = {"22126": Group("", [], {"A": Course("A", [], id_out, id_in)})}
+        self.groups = {"22126": Group(
+            "", [], {"A": Course("A", [], id_out, id_in)})} # TODO: Delete
         self.names_range = (5, 27)
         self.internal_start = 2
 
@@ -28,6 +30,7 @@ class Manager:
 
     def read_names(self, group: Group) -> None:
         log(f"Manager: Reading names for group {group}")
+
         start, end = self.names_range
         random_course_table = list(group.courses.values())[0].table_id_students
         table = self.connection.read(f"A{start}:B{end}", random_course_table)
@@ -40,18 +43,27 @@ class Manager:
 
     def addGroup(self, number: str, courses):
         log(f"Manager: adding group {number} with courses {courses}")
+
         self.groups[number] = Group(number, [], courses)
 
     def read_current_tasks(self, student: Student, course_name: str):
+        log(f"Manager: Reading current tasks for student {student.name}, for course {course_name}")
+
         group = self.groups[student.group]
         students = group.students
+
         all_tasks = self.read_tasks(group, course_name)
+
         for i in range(len(students)):
             if students[i].name == student.name:
                 break
-        num = i 
+
+        num = i
         start, end = self.names_range
-        result = self.connection.read(f"C{start + num}:S{start + num}", group.courses[course_name].table_id_students)[0]
+
+        result = self.connection.read(
+            f"C{start + num}:S{start + num}", group.courses[course_name].table_id_students)[0]
+
         answer = []
         for i in range(len(all_tasks)):
             if i >= len(result) or result[i] == "":
@@ -62,6 +74,7 @@ class Manager:
         log(f"Manager: Reading tasks for group {group.number} course {name}")
         result = self.connection.read(
             "C3:AA4", group.courses[name].table_id_students)
+
         # May be error
         tasks_list = []
         i = 0
@@ -83,10 +96,13 @@ class Manager:
         return row, column
 
     def receive(self, student: Student, task: str, course_name: str):
+        log(f"Manager: Reciecing task {task}, from {student}, at course {course_name}")
+
         group = self.groups[student.group]
         self.write(student, group, task, course_name, "п")
-        # table_id = group.courses[course_name].table_id_teachers
-        # self.connection.app("A2", table_id, task)
+        table_id = group.courses[course_name].table_id_teachers
+        self.connection.app(
+            "A2", table_id, [[task, student.name, student.tg, student.github]])
 
     def write(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
@@ -99,9 +115,11 @@ if __name__ == "__main__":
     manager = Manager()
     manager.read_tasks(manager.groups["22126"], "A")
     manager.read_names(manager.groups["22126"])
-    student = Student("", "", "Колбасова Любовь Сергеевна", "22126", [])
+    for group in manager.groups.keys():
+        for student in manager.groups[group]:
+            print(student)
+    student = Student(
+        "@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", [])
     manager.receive(student, "12", "A")
     result = manager.connection.read("F2", id_in)
-    print(result)
     print(manager.read_current_tasks(student, "A"))
-
