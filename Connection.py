@@ -95,6 +95,11 @@ class Connection:
                 log_error(f"Error: sheet with id {sheet_id} was not found!")
             case "400":
                 log_error(f"Error: range {range} is invalid!")
+            case "403":
+                log_error("Error: User have no premission, need reconnection with another account")
+            case _:
+                log_error("Error: Uknown")
+                log_error(error)
         log_error("Exit!")
         exit(0)
     
