@@ -118,8 +118,6 @@ class Manager:
 
         table_id = group.courses[course_name].table_id_teachers
 
-        print(student.github)
-
         self.connection.app(
             "A2", table_id, [[task, student.name, student.tg, student.github[course_name], "", "не распределена"]])
 
@@ -129,7 +127,7 @@ class Manager:
         table_id = group.courses[course_name].table_id_students
         row, column = self._get_cell_(student, group, task)
 
-        self.connection.write(column + row, table_id, value)
+        self.connection._write(column + row, table_id, value)
 
 
 def test_1():
@@ -158,4 +156,6 @@ def test_4():
 if __name__ == "__main__":
     manager = Manager()
     test_1()
-
+    test_2()
+    test_3()
+    test_4()

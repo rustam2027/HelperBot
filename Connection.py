@@ -1,5 +1,6 @@
 import os.path
 
+from multiprocessing import Process
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -18,7 +19,7 @@ class Connection:
         self.service = None
 
     def __get_row_and_column__(self, cell: str) -> Tuple[str, str]:
-        # this function doesnt work with cell with more than one letter 
+        # this function doesnt work with cell with more than one letter
         row = ""
         i = 0
         while cell[i].isalpha():
@@ -26,8 +27,7 @@ class Connection:
             i += 1
         column = cell[i:]
 
-    
-        return(int(column) - 1, ord(row) - 65) 
+        return (int(column) - 1, ord(row) - 65)
 
     def connect(self):
         log("Connecting")
@@ -62,7 +62,7 @@ class Connection:
         except HttpError as e:
             self.error_handler(e, sheet_id, range)
 
-    def write(self, range: str, sheet_id: str, data: str) -> None:
+    def _write(self, range: str, sheet_id: str, data: str) -> None:
         log(
             f"Writing to table, sheet_id: {sheet_id}, range: {range}, data: {data}")
         body = {
@@ -77,6 +77,11 @@ class Connection:
                 spreadsheetId=sheet_id, body=body).execute()
         except HttpError as e:
             self.error_handler(e, sheet_id, range)
+
+    def write(self, range: str, sheet_id: str, data: str):
+        p = Process(target=self._write, args=(
+            range, sheet_id, data,), daemon=True)
+        p.start()
 
     def app(self, range: str, sheet_id: str, data: list):
         log(
@@ -96,32 +101,28 @@ class Connection:
             case "400":
                 log_error(f"Error: range {range} is invalid!")
             case "403":
-                log_error("Error: User have no premission, need reconnection with another account")
+                log_error(
+                    "Error: User have no premission, need reconnection with another account")
             case _:
                 log_error("Error: Uknown")
                 log_error(error)
         log_error("Exit!")
         exit(0)
-    
+
     def copy(self, start_cell, end_cell, sheet_id):
         log(f"Coping in sheet {sheet_id} from {start_cell} to {end_cell}")
-        start_row, start_column =  self.__get_row_and_column__(start_cell)
+        start_row, start_column = self.__get_row_and_column__(start_cell)
         end_row, end_column = self.__get_row_and_column__(end_cell)
-
-        
 
         source_start_row_index = start_row
         source_end_row_index = start_row + 1
         source_start_column_index = start_column
         source_end_column_index = start_column + 1
 
-
         destination_start_row_index = end_row
         destination_end_row_index = end_row + 1
         destination_start_column_index = end_column
         destination_end_column_index = end_column + 1
-
-
 
         batch_update_spreadsheet_request_body = {
             "requests": [
@@ -147,9 +148,11 @@ class Connection:
             ]
         }
         try:
-            self.service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=batch_update_spreadsheet_request_body).execute()
+            self.service.spreadsheets().batchUpdate(spreadsheetId=sheet_id,
+                                                    body=batch_update_spreadsheet_request_body).execute()
         except HttpError as e:
-            self.error_handler(e, sheet_id, range=f"{start_cell} -> {end_cell}")
+            self.error_handler(
+                e, sheet_id, range=f"{start_cell} -> {end_cell}")
 
 
 if __name__ == "__main__":
