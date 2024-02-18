@@ -68,7 +68,7 @@ class Manager:
         for i in range(len(students)):
             if students[i].name == student.name:
                 break
-        num = i
+        num = i + 1
         start, _ = self.names_range
 
         result = self.connection.read(
@@ -132,7 +132,7 @@ def test_1():
 
 
 def test_2():
-    student_1 = Student({"Algorithms": "1", "C++": "2"}, "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    student_1 = Student({"Algorithms": "1", "C++": "2"}, "@HUI", "Кареба Юрий Сергеевич", "22126", None)
     print(manager.read_current_tasks(student_1, "Algorithms"))
     print(manager.read_current_tasks(student_1, "C++"))
 
@@ -156,9 +156,9 @@ def test_5():
 
 if __name__ == "__main__":
     manager = Manager()
-    test_1()
+    # test_1()
     test_2()
-    test_3()
-    test_4()
-    test_5()
+    # test_3()
+    # test_4()
+    # test_5()
 
