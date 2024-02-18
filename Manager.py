@@ -1,3 +1,5 @@
+import glob
+import json
 from typing import List, Dict, Tuple
 
 from Connection import Connection
@@ -24,14 +26,28 @@ class Manager:
 
         self.connection = Connection()
         self.connection.connect()
-        self.groups = GROUPS
+        self.groups = {}
+        self._init_groups()
         self.names_range = (5, 27)
         self.internal_start = 2
 
         for group in self.groups.keys():
             self._read_names_(self.groups[group])
 
-        # TODO: Read groups from file
+    def _init_groups(self) -> None:
+        log(f"Manager: init groups from init_1.json")
+
+        for filename in glob.glob('AdminData/*.json'):
+            with open(filename, "r", encoding="utf-8") as file:
+                data = json.load(file)
+                group, course = data['group'], data['course']
+                course_to_add = Course(course, None, data['id_out'], data['id_in'])
+                if group in self.groups:
+                    courses = self.groups[group].courses
+                    if course not in courses:
+                        courses[course] = course_to_add
+                else:
+                    self.groups[group] = Group(group, None, {course: course_to_add})
 
     def _read_names_(self, group: Group) -> None:
         log(f"Manager: Reading names for group {group.number}")
@@ -126,13 +142,13 @@ class Manager:
 
 if __name__ == "__main__":
     manager = Manager()
-    manager.read_tasks(manager.groups["22126"], "A")
+    manager.read_tasks(manager.groups["22126"], "Algorithms")
     manager._read_names_(manager.groups["22126"])
     for group in manager.groups.keys():
         for student in manager.groups[group].students:
             print(student)
     student = Student(
         "@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", [])
-    manager.receive(student, "12", "A")
+    manager.receive(student, "13", "Algorithms")
     result = manager.connection.read("F2", id_in)
-    print(manager.read_current_tasks(student, "A"))
+    print(manager.read_current_tasks(student, "Algorithms"))
