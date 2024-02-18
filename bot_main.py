@@ -7,7 +7,7 @@ from Data.Student import Student
 from Manager import Manager
 
 students_info: dict[str: Student] = {}
-
+courses = []
 TOKEN: str = '6924911833:AAEkGGKgCG-F91EWpJqXOnB7XqYJvhQ0wlA'
 
 bot = telebot.TeleBot(TOKEN)
@@ -50,13 +50,46 @@ def start(message: types.Message):
     send_message(message, "Выбери свою группу:", markup)
 
 
-# @bot.message_handler(commands=['tasks'])
-# def pass_tasks(message: types.Message):
+@bot.message_handler(commands=['tasks'])
+def pass_tasks(message: types.Message):
+    student = students_info[message.chat.id]
+    send_message(message, "О, ты готов сдавать задачи? Супер)")
+    groups = manager.groups[student.group].courses
+    markup = types.InlineKeyboardMarkup()
+    for name, course in groups.items():
+        btn = types.InlineKeyboardButton(text=name, callback_data=f'course {name}')
+        markup.add(btn)
+    bot.send_message(message.chat.id, "Тогда тебе нужно выбрать курс:", reply_markup=markup)
+
+
+@bot.callback_query_handler(func=lambda course_button: course_button.data.startswith("course") and not str.isnumeric(course_button.data))
+def get_tasks(course: types.CallbackQuery):
+    bot.delete_message(course.from_user.id, course.message.message_id)
+    student = students_info[course.from_user.id]
+    course_current = course.data.split()[1]
+    unresolved_tasks = manager.read_current_tasks(student, course_current)
+    markup = types.InlineKeyboardMarkup()
+    for task in unresolved_tasks:
+        btn = types.InlineKeyboardButton(text=task, callback_data=f'task {course_current} {task}')
+        markup.add(btn)
+    bot.send_message(course.from_user.id, "Выбери задачу:", reply_markup=markup)
+
+
+def check_correct_task(user_input: str):
+    return user_input.startswith("task")
+
+
+@bot.callback_query_handler(func=lambda task_button: check_correct_task(task_button.data))
+def get_task(task: types.CallbackQuery):
+    bot.delete_message(task.from_user.id, task.message.message_id)
+    _, course_name, task_current = task.data.split()
+    manager.receive(students_info[task.from_user.id], task_current, course_name)
+    bot.send_message(task.from_user.id, f"Вы отправили {task_current} задачу по {course_name}!")
 
 
 @bot.callback_query_handler(func=lambda group_button: group_button.data.endswith("126") and len(group_button.data) == 5)
 def get_group(group: types.CallbackQuery):
-    print(group.data)
+    bot.delete_message(group.from_user.id, group.message.message_id)
     students: list[Student] = manager.get_students(group.data)
     markup = types.InlineKeyboardMarkup()
 
@@ -73,6 +106,7 @@ def student_check(str_student: str):
 
 @bot.callback_query_handler(func=lambda student_button: student_check(student_button.data))
 def get_student(student: types.CallbackQuery):
+    bot.delete_message(student.from_user.id, student.message.message_id)
     student_number, group_number = student.data.split()
     student_number = int(student_number)
     student_tg = '@' + student.from_user.username
