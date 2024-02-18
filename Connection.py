@@ -60,7 +60,7 @@ class Connection:
                 spreadsheetId=sheet_id, range=range).execute()
             return resp["values"]
         except HttpError as e:
-            self.error_handler(e, sheet_id, range)
+            self.__error_handler__(e, sheet_id, range)
 
     def _write(self, range: str, sheet_id: str, data: str) -> None:
         log(
@@ -76,7 +76,7 @@ class Connection:
             self.service.spreadsheets().values().batchUpdate(
                 spreadsheetId=sheet_id, body=body).execute()
         except HttpError as e:
-            self.error_handler(e, sheet_id, range)
+            self.__error_handler__(e, sheet_id, range)
 
     def write(self, range: str, sheet_id: str, data: str):
         p = Process(target=self._write, args=(
@@ -91,9 +91,9 @@ class Connection:
             self.service.spreadsheets().values().append(
                 spreadsheetId=sheet_id, valueInputOption="USER_ENTERED", range=range, body=body).execute()
         except HttpError as e:
-            self.error_handler(e, sheet_id, range)
+            self.__error_handler__(e, sheet_id, range)
 
-    def error_handler(self, error: HttpError, sheet_id: str, range: str):
+    def __error_handler__(self, error: HttpError, sheet_id: str, range: str):
         error_code = error.resp["status"]
         match(error_code):
             case "404":
@@ -151,7 +151,7 @@ class Connection:
             self.service.spreadsheets().batchUpdate(spreadsheetId=sheet_id,
                                                     body=batch_update_spreadsheet_request_body).execute()
         except HttpError as e:
-            self.error_handler(
+            self.__error_handler__(
                 e, sheet_id, range=f"{start_cell} -> {end_cell}")
 
 

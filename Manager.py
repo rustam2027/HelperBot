@@ -56,11 +56,6 @@ class Manager:
             names.append(Student({}, None, name[0], group.number, None))
         group.students = names
 
-    def addGroup(self, number: str, courses):
-        log(f"Manager: adding group {number} with courses {courses}")
-
-        self.groups[number] = Group(number, [], courses)
-
     def read_current_tasks(self, student: Student, course_name: str):
         log(
             f"Manager: Reading current tasks for student {student.name}, for course {course_name}")
