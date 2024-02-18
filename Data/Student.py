@@ -7,6 +7,7 @@ class Student:
     tg: str
     name: str
     group: str
+    chat_id: str
 
 
 """
