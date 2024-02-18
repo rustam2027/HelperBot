@@ -104,6 +104,7 @@ class Connection:
         exit(0)
     
     def copy(self, start_cell, end_cell, sheet_id):
+        log(f"Coping in sheet {sheet_id} from {start_cell} to {end_cell}")
         start_row, start_column =  self.__get_row_and_column__(start_cell)
         end_row, end_column = self.__get_row_and_column__(end_cell)
 
@@ -145,8 +146,10 @@ class Connection:
                 }
             ]
         }
-        print(batch_update_spreadsheet_request_body)
-        self.service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=batch_update_spreadsheet_request_body).execute()
+        try:
+            self.service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=batch_update_spreadsheet_request_body).execute()
+        except HttpError as e:
+            self.error_handler(e, sheet_id, range=f"{start_cell} -> {end_cell}")
 
 
 if __name__ == "__main__":
