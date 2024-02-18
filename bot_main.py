@@ -4,7 +4,7 @@ import re
 
 from Data.Student import Student
 
-# import Manager
+from Manager import Manager
 
 students_info: dict[str: Student] = {}
 
@@ -13,7 +13,7 @@ TOKEN: str = '6924911833:AAEkGGKgCG-F91EWpJqXOnB7XqYJvhQ0wlA'
 bot = telebot.TeleBot(TOKEN)
 
 
-# manager = Manager()
+manager = Manager()
 
 
 @bot.message_handler(commands=['send_pic'])
@@ -37,7 +37,7 @@ def send_message(user_message: types.Message, bot_message: str, markup=None):
 
 @bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    students_info[message.chat.id] = Student(str(message.chat.id)) # TODO: Не создавать объект а использовать из group
+    students_info[message.chat.id] = Student(str(message.chat.id))  # TODO: Не создавать объект а использовать из group
 
     send_message(message, "Привет!\nДобро пожаловать на Системное Программирование!\n"
                           "Это телеграм-бот для сдачи задач по курсам на нашем профиле.")
