@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Student:
-    github: str
+    github: dict
     tg: str
     name: str
     group: str

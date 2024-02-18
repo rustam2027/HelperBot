@@ -53,7 +53,7 @@ class Manager:
         for name in table:
             if name[0] == "Вольнослушатели:" or name[0] == "Максимальный балл за задачу":
                 break
-            names.append(Student("", "", name[0], group.number, []))
+            names.append(Student({}, "", name[0], group.number, []))
         group.students = names
 
     def addGroup(self, number: str, courses):
@@ -110,7 +110,7 @@ class Manager:
         return row, column
 
     def receive(self, student: Student, task: str, course_name: str):
-        log(f"Manager: Reciecing task {task}, from {student}, at course {course_name}")
+        log(f"Manager: Reciecing task {task}, from {student.name}, at course {course_name}")
 
         group = self.groups[student.group]
 
@@ -118,8 +118,10 @@ class Manager:
 
         table_id = group.courses[course_name].table_id_teachers
 
+        print(student.github)
+
         self.connection.app(
-            "A2", table_id, [[task, student.name, student.tg, student.github, "", "не распределена"]])
+            "A2", table_id, [[task, student.name, student.tg, student.github[course_name], "", "не распределена"]])
 
     def _write_(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
@@ -131,14 +133,14 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
-    student_2 = Student("@huiiii", "@HUIII", "Салимов Рустам Аскарович", "22126", None)
+    student_1 = Student({"Algorithms": "@HUI"}, "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    student_2 = Student({"C++": "@HUIII"}, "@HUIII", "Салимов Рустам Аскарович", "22126", None)
     manager.receive(student_1, "4", "Algorithms")
     manager.receive(student_2, "4", "C++")
 
 
 def test_2():
-    student_1 = Student("@hui", "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
+    student_1 = Student("@hui", {"Algorithms": "@HUII", "C++": "@HUIII"}, "Колбасова Любовь Сергеевна", "22126", None)
     print(manager.read_current_tasks(student_1, "Algorithms"))
     print(manager.read_current_tasks(student_1, "C++"))
 
