@@ -9,6 +9,7 @@ from Data.Group import Group
 from Data.Student import Student
 
 from logger import log
+# TODO: Read all the sheets and update them only hourly
 
 
 class Manager:
