@@ -65,7 +65,8 @@ def pass_tasks(message: types.Message):
     bot.send_message(message.chat.id, "Тогда тебе нужно выбрать курс:", reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda course_button: course_button.data.startswith("course") and not str.isnumeric(course_button.data))
+@bot.callback_query_handler(
+    func=lambda course_button: course_button.data.startswith("course") and not str.isnumeric(course_button.data))
 def get_tasks(course: types.CallbackQuery):
     bot.delete_message(course.from_user.id, course.message.message_id)
     student = students_info[course.from_user.id]
@@ -79,7 +80,6 @@ def get_tasks(course: types.CallbackQuery):
             btn = types.InlineKeyboardButton(text=task, callback_data=f'task {course_current} {task}')
             markup.add(btn)
         bot.send_message(course.from_user.id, "Выбери задачу:", reply_markup=markup)
-
 
 
 def check_correct_task(user_input: str):
@@ -129,15 +129,17 @@ def get_student(student: types.CallbackQuery):
     manager.groups[group_number].students[student_number] = current_student
     students_info[student.from_user.id] = current_student
 
+
 @dataclass
 class Request:
     url: str
+
 
 def get_repositories(message, courses: list, count: int, student: Student):
     if message.text != "Время скинуть ссылки на репозитории!":
         request = Request(None)
         check_github_url(message, request)
-        while(request.url is None):
+        while request.url is None:
             continue
         user_url = request.url
         ex_count = count + 1
@@ -176,6 +178,7 @@ def provide_multiple_answer_poll(chat_id):
     for option in options:
         button = types.KeyboardButton(option)
         markup.add(button)
+
 
 # @bot.message_handler(commands=['mult_choice'])
 def handle_multiple_answer_poll(message):

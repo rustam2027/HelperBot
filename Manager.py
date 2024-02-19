@@ -97,6 +97,7 @@ class Manager:
         return group.students
 
     def _get_cell_(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
+        print("In get_cell:", task)
         students = [st.name for st in group.students]
         position = students.index(student.name)
         row = str(self.names_range[0] + position)
