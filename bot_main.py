@@ -19,25 +19,40 @@ manager = Manager()
 
 @bot.message_handler(commands=['send_pic'])
 def send_pic(message: types.Message):
-    bot.reply_to(message, "done. nice. hello")
+    with open("C:/Users/Home/Desktop/HelperBot/Pictures/cat.jpg", 'rb') as photo:
+        bot.send_photo(message.chat.id, photo)
+
+
+@bot.message_handler(commands=['send_gif'])
+def send_pic(message: types.Message):
+    with open("C:/Users/Home/Desktop/HelperBot/Pictures/video.mp4", 'rb') as gif:
+        bot.send_video(message.chat.id, gif)
 
 
 @bot.message_handler(commands=['help'])
 def send_message_help(message: types.Message):
-    bot.reply_to(message, "Если вы ошиблись при вводе данных, напишите /reset, чтобы начать все сначала.")
+    bot.reply_to(message,
+                 "Этот бот создан, чтобы помочь студентам сдавать задачи по курсам нашего профиля. Вам доступны следующие команды:\n"
+                 "/help - объяснение!\n"
+                 "/tasks - вам будет предоставлен список задач по предметам\n"
+                 "/reset - можете воспользоваться данной командой, если вы неправильно ввели свои данные при регистрации\n"
+                 "/send_pic - отправляет фото)"
+                 "/send_gif - отправляет video)")
 
 
-@bot.message_handler(commands=['reset'])
-def reset(message: types.Message):
-    students_info[message.chat.id] = None
+# @bot.message_handler(commands=['reset'])
+# def reset(message: types.Message):
+#     students_info[message.chat.id] = None
+#     sta
 
 
 def send_message(user_message: types.Message, bot_message: str, markup=None):
     bot.send_message(user_message.from_user.id, bot_message, reply_markup=markup)
 
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start', 'reset'])
 def start(message: types.Message):
+    # provide_multiple_answer_poll(message.chat.id)
     send_message(message, "Привет!\nДобро пожаловать на Системное Программирование!\n"
                           "Это телеграм-бот для сдачи задач по курсам на нашем профиле.")
     send_message(message, "Для начала тебе нужно пройти регистрацию.")
@@ -49,7 +64,6 @@ def start(message: types.Message):
         btn = types.InlineKeyboardButton(text=group.number, callback_data=group.number)
         markup.add(btn)
 
-    handle_multiple_answer_poll(message)
     send_message(message, "Выбери свою группу:", markup)
 
 
@@ -151,7 +165,8 @@ def get_repositories(message, courses: list, count: int, student: Student):
         count -= 1
         bot.register_next_step_handler(msg, get_repositories, courses, count, student)
     else:
-        bot.send_message(message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
+        provide_multiple_answer_poll(message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
+        # bot.send_message(message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
         students_info[student.chat_id] = student
         print_student(student)
         # TODO: function in manager to give them Student
@@ -171,19 +186,21 @@ def check_github_url(user_message: types.Message, request: Request):
 
 # Function to provide a poll with multiple answering options for users
 @bot.poll_answer_handler(func=lambda x: True)
-def provide_multiple_answer_poll(chat_id):
-    options = ["/start", "/help", "/tasks", "/reset"]
+def provide_multiple_answer_poll(chat_id, message_text: str):
+    options = ["/help", "/tasks", "/reset"]
 
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=False, selective=True)
     for option in options:
         button = types.KeyboardButton(option)
         markup.add(button)
 
+    bot.send_message(chat_id, message_text, reply_markup=markup)
 
-# @bot.message_handler(commands=['mult_choice'])
-def handle_multiple_answer_poll(message):
-    chat_id = message.chat.id
-    provide_multiple_answer_poll(chat_id)
+
+# @bot.message_handler(commands=['mult_choice', 'start'])
+# def handle_multiple_answer_poll(message):
+#     chat_id = message.chat.id
+#     provide_multiple_answer_poll(chat_id)
 
 
 # Handler for processing user answers in the poll
