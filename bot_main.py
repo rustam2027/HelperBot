@@ -10,7 +10,7 @@ from Manager import Manager
 
 students_info: dict[str: Student] = {}
 courses = []
-TOKEN: str = '6924911833:AAEkGGKgCG-F91EWpJqXOnB7XqYJvhQ0wlA'
+TOKEN: str = '6924911833:AAEODKubQXH6yFhNUS3j6GH58FvN4D9HrbM'
 
 bot = telebot.TeleBot(TOKEN)
 
