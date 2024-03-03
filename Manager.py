@@ -30,9 +30,9 @@ class Manager:
             self._read_names_(self.groups[group])
 
     def _init_groups(self) -> None:
-        log(f"Manager: init groups from init_1.json")
-
         for filename in glob.glob('AdminData/*.json'):
+            log(f"Manager: init groups from {filename}")
+
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 group, course = data['group'], data['course']

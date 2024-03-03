@@ -3,14 +3,14 @@ from dataclasses import dataclass
 import telebot
 from telebot import types
 import re
+from typing import Dict
 
 from Data.Student import Student
 
 from Manager import Manager
+from config import TOKEN
 
-students_info: dict[str: Student] = {}
-courses = []
-TOKEN: str = '6924911833:AAEODKubQXH6yFhNUS3j6GH58FvN4D9HrbM'
+students_info: Dict[str, Student] = {}
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -19,12 +19,14 @@ manager = Manager()
 
 @bot.message_handler(commands=['send_pic'])
 def send_pic(message: types.Message):
+    return
     with open("C:/Users/Home/Desktop/HelperBot/Pictures/cat.jpg", 'rb') as photo:
         bot.send_photo(message.chat.id, photo)
 
 
 @bot.message_handler(commands=['send_gif'])
-def send_pic(message: types.Message):
+def send_gif(message: types.Message):
+    return
     with open("C:/Users/Home/Desktop/HelperBot/Pictures/video.mp4", 'rb') as gif:
         bot.send_video(message.chat.id, gif)
 
@@ -41,7 +43,8 @@ def send_message_help(message: types.Message):
 
 
 def send_message(user_message: types.Message, bot_message: str, markup=None):
-    bot.send_message(user_message.from_user.id, bot_message, reply_markup=markup)
+    bot.send_message(user_message.from_user.id,
+                     bot_message, reply_markup=markup)
 
 
 @bot.message_handler(commands=['start', 'reset'])
@@ -54,7 +57,8 @@ def start(message: types.Message):
 
     markup = types.InlineKeyboardMarkup()
     for group in groups_list:
-        btn = types.InlineKeyboardButton(text=group.number, callback_data=group.number)
+        btn = types.InlineKeyboardButton(
+            text=group.number, callback_data=group.number)
         markup.add(btn)
 
     send_message(message, "Выбери свою группу:", markup)
@@ -67,9 +71,11 @@ def pass_tasks(message: types.Message):
     groups = manager.groups[student.group].courses
     markup = types.InlineKeyboardMarkup()
     for name, course in groups.items():
-        btn = types.InlineKeyboardButton(text=name, callback_data=f'course {name}')
+        btn = types.InlineKeyboardButton(
+            text=name, callback_data=f'course {name}')
         markup.add(btn)
-    bot.send_message(message.chat.id, "Тогда тебе нужно выбрать курс:", reply_markup=markup)
+    bot.send_message(
+        message.chat.id, "Тогда тебе нужно выбрать курс:", reply_markup=markup)
 
 
 @bot.callback_query_handler(
@@ -84,9 +90,11 @@ def get_tasks(course: types.CallbackQuery):
         bot.send_message(course.from_user.id, "Все задачи сданы! Молодец!")
     else:
         for task in unresolved_tasks:
-            btn = types.InlineKeyboardButton(text=task, callback_data=f'task {course_current} {task}')
+            btn = types.InlineKeyboardButton(
+                text=task, callback_data=f'task {course_current} {task}')
             markup.add(btn)
-        bot.send_message(course.from_user.id, "Выбери задачу:", reply_markup=markup)
+        bot.send_message(course.from_user.id,
+                         "Выбери задачу:", reply_markup=markup)
 
 
 def check_correct_task(user_input: str):
@@ -97,8 +105,10 @@ def check_correct_task(user_input: str):
 def get_task(task: types.CallbackQuery):
     bot.delete_message(task.from_user.id, task.message.message_id)
     _, course_name, task_current = task.data.split()
-    manager.receive(students_info[task.from_user.id], task_current, course_name)
-    bot.send_message(task.from_user.id, f"Вы отправили {task_current} задачу по {course_name}!")
+    manager.receive(students_info[task.from_user.id],
+                    task_current, course_name)
+    bot.send_message(task.from_user.id,
+                     f"Вы отправили {task_current} задачу по {course_name}!")
 
 
 @bot.callback_query_handler(func=lambda group_button: group_button.data.endswith("126") and len(group_button.data) == 5)
@@ -108,10 +118,12 @@ def get_group(group: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
 
     for i, student in enumerate(students):
-        btn = types.InlineKeyboardButton(text=student.name, callback_data=f"{i} {group.data}")
+        btn = types.InlineKeyboardButton(
+            text=student.name, callback_data=f"{i} {group.data}")
         markup.add(btn)
 
-    bot.send_message(group.message.chat.id, "Выбери себя:", reply_markup=markup)
+    bot.send_message(group.message.chat.id,
+                     "Выбери себя:", reply_markup=markup)
 
 
 def student_check(str_student: str):
@@ -124,10 +136,11 @@ def get_student(student: types.CallbackQuery):
     student_number, group_number = student.data.split()
     student_number = int(student_number)
     student_tg = '@' + student.from_user.username
-    courses = list(manager.groups[group_number].courses.keys())  # dict
+    courses = list(manager.groups[group_number].courses.keys())
 
     count = len(courses) - 1
-    msg = bot.send_message(student.message.chat.id, "Время скинуть ссылки на репозитории!")
+    msg = bot.send_message(student.message.chat.id,
+                           "Время скинуть ссылки на репозитории!")
 
     current_student = manager.groups[group_number].students[student_number]
     current_student.tg = student_tg
@@ -139,7 +152,7 @@ def get_student(student: types.CallbackQuery):
 
 @dataclass
 class Request:
-    url: str
+    url: str | None
 
 
 def get_repositories(message, courses: list, count: int, student: Student):
@@ -154,11 +167,14 @@ def get_repositories(message, courses: list, count: int, student: Student):
         student.github[courses[ex_count]] = user_url
 
     if count >= 0:
-        msg = bot.send_message(message.chat.id, f"Скинь ссылку на репозиторий по предмету {courses[count]}")
+        msg = bot.send_message(
+            message.chat.id, f"Скинь ссылку на репозиторий по предмету {courses[count]}")
         count -= 1
-        bot.register_next_step_handler(msg, get_repositories, courses, count, student)
+        bot.register_next_step_handler(
+            msg, get_repositories, courses, count, student)
     else:
-        provide_multiple_answer_poll(message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
+        provide_multiple_answer_poll(
+            message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
         students_info[student.chat_id] = student
         print_student(student)
         # TODO: function in manager to give them Student
@@ -169,7 +185,8 @@ def check_github_url(user_message: types.Message, request: Request):
     github_link_regex = r'(https?:\/\/)github\.com\/(.+?)\/'
 
     if not re.match(github_link_regex, user_message.text):
-        msg = bot.send_message(user_message.chat.id, "Ссылка невалидная! Попробуй еще раз!")
+        msg = bot.send_message(user_message.chat.id,
+                               "Ссылка невалидная! Попробуй еще раз!")
         bot.register_next_step_handler(msg, check_github_url, request)
     else:
         request.url = user_message.text

@@ -5,6 +5,6 @@ from typing import List
 @dataclass
 class Course:
     name: str
-    tasks: List[str]
+    tasks: List[str] | None
     table_id_students: str
     table_id_teachers: str
