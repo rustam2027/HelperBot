@@ -40,19 +40,12 @@ def send_message_help(message: types.Message):
                  "/send_gif - отправляет video)")
 
 
-# @bot.message_handler(commands=['reset'])
-# def reset(message: types.Message):
-#     students_info[message.chat.id] = None
-#     sta
-
-
 def send_message(user_message: types.Message, bot_message: str, markup=None):
     bot.send_message(user_message.from_user.id, bot_message, reply_markup=markup)
 
 
 @bot.message_handler(commands=['start', 'reset'])
 def start(message: types.Message):
-    # provide_multiple_answer_poll(message.chat.id)
     send_message(message, "Привет!\nДобро пожаловать на Системное Программирование!\n"
                           "Это телеграм-бот для сдачи задач по курсам на нашем профиле.")
     send_message(message, "Для начала тебе нужно пройти регистрацию.")
@@ -166,11 +159,9 @@ def get_repositories(message, courses: list, count: int, student: Student):
         bot.register_next_step_handler(msg, get_repositories, courses, count, student)
     else:
         provide_multiple_answer_poll(message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
-        # bot.send_message(message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
         students_info[student.chat_id] = student
         print_student(student)
         # TODO: function in manager to give them Student
-    # return None
 
 
 # TODO: make it work correctly
@@ -195,20 +186,6 @@ def provide_multiple_answer_poll(chat_id, message_text: str):
         markup.add(button)
 
     bot.send_message(chat_id, message_text, reply_markup=markup)
-
-
-# @bot.message_handler(commands=['mult_choice', 'start'])
-# def handle_multiple_answer_poll(message):
-#     chat_id = message.chat.id
-#     provide_multiple_answer_poll(chat_id)
-
-
-# Handler for processing user answers in the poll
-# @bot.message_handler(func=lambda message: True)
-# def handle_user_answers(message):
-#     user_answers = message.text.split('\n')
-#     response = f"Your answers: {', '.join(user_answers)}"
-#     bot.reply_to(message, response)
 
 
 def print_student(student: Student):
