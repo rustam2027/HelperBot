@@ -1,6 +1,8 @@
 import glob
 import json
 from typing import List, Dict, Tuple
+import pickle
+import os.path
 
 from Connection import Connection
 
@@ -10,6 +12,8 @@ from Data.Student import Student
 
 from logger import log
 # TODO: Read all the sheets and update them only hourly
+
+DATA_FILE: str = "./AdminData/students_data.pickle"
 
 
 class Manager:
@@ -29,6 +33,20 @@ class Manager:
         for group in self.groups.keys():
             self._read_names_(self.groups[group])
 
+    def get_chat_info(self) -> dict:
+        log("Manager: getting students info")
+        info = dict()
+        if os.path.isfile(DATA_FILE):
+            log(f"Manager: file {DATA_FILE} was found!")
+            with open(DATA_FILE, "rb") as file:
+                info = pickle.load(file)
+        return info
+
+    def save_chat_info(self, info: dict) -> None:
+        log(f"Manager: dumping students info into file {DATA_FILE}")
+        with open(DATA_FILE, "wb") as file:
+            pickle.dump(info, file)
+
     def _init_groups(self) -> None:
         for filename in glob.glob('AdminData/*.json'):
             log(f"Manager: init groups from {filename}")
@@ -36,13 +54,15 @@ class Manager:
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 group, course = data['group'], data['course']
-                course_to_add = Course(course, None, data['id_out'], data['id_in'])
+                course_to_add = Course(
+                    course, None, data['id_out'], data['id_in'])
                 if group in self.groups:
                     courses = self.groups[group].courses
                     if course not in courses:
                         courses[course] = course_to_add
                 else:
-                    self.groups[group] = Group(group, None, {course: course_to_add})
+                    self.groups[group] = Group(
+                        group, None, {course: course_to_add})
 
     def _read_names_(self, group: Group) -> None:
         log(f"Manager: Reading names for group {group.number}")
@@ -84,7 +104,8 @@ class Manager:
 
     def read_tasks(self, group: Group, name: str) -> List:
         log(f"Manager: Reading tasks for group {group.number} course {name}")
-        result = self.connection.read("C3:AA4", group.courses[name].table_id_students)
+        result = self.connection.read(
+            "C3:AA4", group.courses[name].table_id_students)
 
         tasks_list = []
         i = 0
@@ -128,14 +149,17 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student({"Algorithms": "Hui"}, "@HUI", "Колбасова Любовь Сергеевна", "22126", None)
-    student_2 = Student({"C++": "HHUUI"}, "@HUIII", "Салимов Рустам Аскарович", "24126", None)
+    student_1 = Student({"Algorithms": "Hui"}, "@HUI",
+                        "Колбасова Любовь Сергеевна", "22126", None)
+    student_2 = Student({"C++": "HHUUI"}, "@HUIII",
+                        "Салимов Рустам Аскарович", "24126", None)
     manager.receive(student_1, "4", "Algorithms")
     manager.receive(student_2, "4", "C++")
 
 
 def test_2():
-    student_1 = Student({"C++": "2"}, "@HUI", "Овчинников Максим Станиславович", "24126", None)
+    student_1 = Student({"C++": "2"}, "@HUI",
+                        "Овчинников Максим Станиславович", "24126", None)
     print(manager.read_current_tasks(student_1, "C++"))
 
 
@@ -150,8 +174,10 @@ def test_4():
 
 
 def test_5():
-    student_1 = Student({"Algorithms": "1"}, "@HUI", "Жуков Иван Андреевич", "23126", None)
-    student_2 = Student({"Algorithms": "4"}, "@HUIII", "Путинцев Андрей Алексеевич", "23126", None)
+    student_1 = Student({"Algorithms": "1"}, "@HUI",
+                        "Жуков Иван Андреевич", "23126", None)
+    student_2 = Student({"Algorithms": "4"}, "@HUIII",
+                        "Путинцев Андрей Алексеевич", "23126", None)
     manager.receive(student_1, "3", "Algorithms")
     manager.receive(student_2, "3", "Algorithms")
 
@@ -163,4 +189,3 @@ if __name__ == "__main__":
     test_3()
     test_4()
     test_5()
-

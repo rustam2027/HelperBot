@@ -8,12 +8,11 @@ from typing import Dict
 from Data.Student import Student
 
 from Manager import Manager
+from logger import log
 from config import TOKEN
 
-students_info: Dict[str, Student] = {}
 
 bot = telebot.TeleBot(TOKEN)
-
 manager = Manager()
 
 
@@ -180,7 +179,7 @@ def get_repositories(message, courses: list, count: int, student: Student):
         provide_multiple_answer_poll(
             message.chat.id, "Все заполнено, вы успешно зарегистрировались!")
         students_info[student.chat_id] = student
-        print_student(student)
+        log(f"Bot: user {student.name} registered")
         # TODO: function in manager to give them Student
 
 
@@ -209,11 +208,9 @@ def provide_multiple_answer_poll(chat_id, message_text: str):
     bot.send_message(chat_id, message_text, reply_markup=markup)
 
 
-def print_student(student: Student):
-    print("Имя: ", student.name)
-    print("Группа: ", student.group)
-    print("Репозитории: ", student.github)
-    print("ID: ", student.chat_id)
+try:
+    students_info: Dict[str, Student] = manager.get_chat_info()
+    bot.polling(none_stop=True, interval=0)
 
-
-bot.polling(none_stop=True, interval=0)
+finally:
+    manager.save_chat_info(students_info)
