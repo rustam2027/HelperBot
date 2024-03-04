@@ -66,6 +66,10 @@ def start(message: types.Message):
 
 @bot.message_handler(commands=['tasks'])
 def pass_tasks(message: types.Message):
+    if (message.chat.id not in students_info):  # Check if user have registration
+        send_message(message, "Ты еще не зарегестрировался!!!!")
+        return
+
     student = students_info[message.chat.id]
     send_message(message, "О, ты готов сдавать задачи? Супер)")
     groups = manager.groups[student.group].courses
