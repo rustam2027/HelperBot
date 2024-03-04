@@ -86,7 +86,7 @@ class Manager:
 
         all_tasks = self.read_tasks(group, course_name)
         i = 0
-        print([i.name for i in students])
+        # print([i.name for i in students])
         for i in range(len(students)):
             if students[i].name == student.name:
                 break
@@ -119,12 +119,18 @@ class Manager:
         return group.students
 
     def _get_cell_(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
-        print("In get_cell:", task)
+        log(f"Manager: get cell, task {task}")
         students = [st.name for st in group.students]
         position = students.index(student.name)
         row = str(self.names_range[0] + position)
-        start = "C"
-        column = chr(ord(start) + int(task) - 1)
+        start = ord('A')
+        base = ord('Z') - start + 1
+        prefix = ''
+        res = int(task) + 1
+        first, second = res // base, res % base
+        if first > 0:
+            prefix = chr(start + first - 1)
+        column = prefix + chr(start + second)
         return row, column
 
     def receive(self, student: Student, task: str, course_name: str):
@@ -149,12 +155,10 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student({"Algorithms": "Hui"}, "@HUI",
-                        "Колбасова Любовь Сергеевна", "22126", None)
-    student_2 = Student({"C++": "HHUUI"}, "@HUIII",
-                        "Салимов Рустам Аскарович", "24126", None)
-    manager.receive(student_1, "4", "Algorithms")
-    manager.receive(student_2, "4", "C++")
+    student_1 = Student({"C++": "Hui"}, "@HUI", "Волков Кирилл Ильич", "22126", None)
+    a = [1, 2, 3, 4, 5, 6, 10, 11, 12, 24, 25, 50, 51, 52]
+    for elem in a:
+        manager.receive(student_1, str(elem), "C++")
 
 
 def test_2():
@@ -185,7 +189,4 @@ def test_5():
 if __name__ == "__main__":
     manager = Manager()
     test_1()
-    test_2()
-    test_3()
-    test_4()
-    test_5()
+
