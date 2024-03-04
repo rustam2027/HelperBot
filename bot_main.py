@@ -166,7 +166,6 @@ def get_repositories(message, courses: list, count: int, student: Student):
             continue
         user_url = request.url
         ex_count = count + 1
-        print(student.github)
         student.github[courses[ex_count]] = user_url
 
     if count >= 0:
