@@ -86,7 +86,7 @@ class Manager:
 
         all_tasks = self.read_tasks(group, course_name)
         i = 0
-        print([i.name for i in students])
+        # print([i.name for i in students])
         for i in range(len(students)):
             if students[i].name == student.name:
                 break
@@ -119,7 +119,7 @@ class Manager:
         return group.students
 
     def _get_cell_(self, student: Student, group: Group, task: str) -> Tuple[str, str]:
-        print("In get_cell:", task)
+        log(f"Manager: get cell, task {task}")
         students = [st.name for st in group.students]
         position = students.index(student.name)
         row = str(self.names_range[0] + position)
@@ -155,8 +155,8 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student({"C++": "Hui"}, "@HUI", "Ёлкин Максим Олегович", "22126", None)
-    a = [1, 2, 3, 4, 5, 6, 24, 25, 50, 51, 52]
+    student_1 = Student({"C++": "Hui"}, "@HUI", "Волков Кирилл Ильич", "22126", None)
+    a = [1, 2, 3, 4, 5, 6, 10, 11, 12, 24, 25, 50, 51, 52]
     for elem in a:
         manager.receive(student_1, str(elem), "C++")
 
