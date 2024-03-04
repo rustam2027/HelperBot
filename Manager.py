@@ -123,8 +123,14 @@ class Manager:
         students = [st.name for st in group.students]
         position = students.index(student.name)
         row = str(self.names_range[0] + position)
-        start = "C"
-        column = chr(ord(start) + int(task) - 1)
+        start = ord('A')
+        base = ord('Z') - start + 1
+        prefix = ''
+        res = int(task) + 1
+        first, second = res // base, res % base
+        if first > 0:
+            prefix = chr(start + first - 1)
+        column = prefix + chr(start + second)
         return row, column
 
     def receive(self, student: Student, task: str, course_name: str):
@@ -149,12 +155,10 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student({"Algorithms": "Hui"}, "@HUI",
-                        "Колбасова Любовь Сергеевна", "22126", None)
-    student_2 = Student({"C++": "HHUUI"}, "@HUIII",
-                        "Салимов Рустам Аскарович", "24126", None)
-    manager.receive(student_1, "4", "Algorithms")
-    manager.receive(student_2, "4", "C++")
+    student_1 = Student({"C++": "Hui"}, "@HUI", "Ёлкин Максим Олегович", "22126", None)
+    a = [1, 2, 3, 4, 5, 6, 24, 25, 50, 51, 52]
+    for elem in a:
+        manager.receive(student_1, str(elem), "C++")
 
 
 def test_2():
@@ -185,7 +189,4 @@ def test_5():
 if __name__ == "__main__":
     manager = Manager()
     test_1()
-    test_2()
-    test_3()
-    test_4()
-    test_5()
+
