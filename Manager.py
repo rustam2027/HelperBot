@@ -6,14 +6,14 @@ import os.path
 
 from Connection import Connection
 
-from Data.Course import Course
-from Data.Group import Group
-from Data.Student import Student
+from DTO.Course import Course
+from DTO.Group import Group
+from DTO.Student import Student
 
 from logger import log
 # TODO: Read all the sheets and update them only hourly
 
-DATA_FILE: str = "./AdminData/students_data.pickle"
+DATA_FILE: str = "./data/students_data.pickle"
 
 
 class Manager:

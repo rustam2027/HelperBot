@@ -1,7 +1,7 @@
 from typing import List, Dict
 from dataclasses import dataclass
-from Data.Student import Student
-from Data.Course import Course
+from DTO.Student import Student
+from DTO.Course import Course
 
 
 @dataclass

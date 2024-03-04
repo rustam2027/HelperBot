@@ -5,7 +5,7 @@ from telebot import types
 import re
 from typing import Dict
 
-from Data.Student import Student
+from DTO.Student import Student
 
 from Manager import Manager
 from logger import log
