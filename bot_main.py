@@ -11,7 +11,6 @@ from Manager import Manager
 from logger import log
 from config import TOKEN
 
-
 bot = telebot.TeleBot(TOKEN)
 manager = Manager()
 
@@ -89,9 +88,44 @@ def check_correct_task(user_input: str):
 
 
 @bot.callback_query_handler(func=lambda task_button: check_correct_task(task_button.data))
-def get_task(task: types.CallbackQuery):
+def get_additional_url(task: types.CallbackQuery):
+    bot.delete_message(task.from_user.id, task.message.message_id)
+    _, course_current, task_current = task.data.split()
+    markup = types.InlineKeyboardMarkup()
+    buttons = ["Add", "Skip"]
+    for btn in buttons:
+        button = types.InlineKeyboardButton(
+            text=btn, callback_data=f'{btn} {course_current} {task_current}')
+        markup.add(button)
+    bot.send_message(task.from_user.id, "Если необходимо - добавь ссылку на задачу:", reply_markup=markup)
+
+
+@bot.callback_query_handler(func=lambda task_button: task_button.data.startswith("Add"))
+def get_additional_url(task: types.CallbackQuery):
     bot.delete_message(task.from_user.id, task.message.message_id)
     _, course_name, task_current = task.data.split()
+    url = bot.send_message(task.from_user.id, "Оки! Твоя ссылка:")
+    # TODO: add check for url
+    bot.register_next_step_handler(url, get_task, task, url.text)
+
+
+""" 
+buttons: Add, Skip
+    Add handler  -> send message and wait for URL
+                 -> jump with url and task to get_task(..)
+    Skip handler -> jump with task to get_task(..)
+"""
+
+
+@bot.callback_query_handler(
+    func=lambda task_button: task_button.data.startswith("Skip"))
+def get_task(task, add_handler_reply: types.CallbackQuery = None, url: str = None):
+    if not add_handler_reply:
+        bot.delete_message(task.from_user.id, task.message.message_id)
+    if add_handler_reply:
+        task = add_handler_reply
+    _, course_name, task_current = task.data.split()
+    # TODO: send task url to manager
     manager.receive(students_info[task.from_user.id],
                     task_current, course_name)
     bot.send_message(task.from_user.id,
@@ -170,12 +204,18 @@ def get_repositories(message, courses: list, count: int, student: Student):
 def check_github_url(user_message: types.Message, request: Request):
     github_link_regex = r'(https?:\/\/)github\.com\/(.+?)\/'
 
-    if user_message.text is not str or not re.match(github_link_regex, user_message.text):
+    try:
+        if not re.match(github_link_regex, user_message.text):
+            msg = bot.send_message(user_message.chat.id,
+                                   "Ссылка невалидная! Попробуй еще раз!")
+            bot.register_next_step_handler(msg, check_github_url, request)
+        else:
+            request.url = user_message.text
+
+    except TypeError:
         msg = bot.send_message(user_message.chat.id,
-                               "Ссылка невалидная! Попробуй еще раз!")
+                               "Отправьте, пожалуйста, ссылку!")
         bot.register_next_step_handler(msg, check_github_url, request)
-    else:
-        request.url = user_message.text
 
 
 # Function to provide a poll with multiple answering options for users
@@ -192,7 +232,7 @@ def provide_multiple_answer_poll(chat_id, message_text: str):
 
 
 try:
-    students_info: Dict[str, Student] = manager.get_chat_info()
+    students_info: Dict[str, Student,] = manager.get_chat_info()
     bot.polling(none_stop=True, interval=0)
 
 finally:
