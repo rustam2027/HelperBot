@@ -105,8 +105,7 @@ def get_additional_url(task: types.CallbackQuery):
     bot.delete_message(task.from_user.id, task.message.message_id)
     _, course_name, task_current = task.data.split()
     url = bot.send_message(task.from_user.id, "Оки! Твоя ссылка:")
-    # TODO: add check for url
-    bot.register_next_step_handler(url, get_task, task, url.text)
+    bot.register_next_step_handler(url, get_task, task)
 
 
 """ 
@@ -117,17 +116,17 @@ buttons: Add, Skip
 """
 
 
-@bot.callback_query_handler(
-    func=lambda task_button: task_button.data.startswith("Skip"))
-def get_task(task, add_handler_reply: types.CallbackQuery = None, url: str = None):
+@bot.callback_query_handler(func=lambda task_button: task_button.data.startswith("Skip"))
+def get_task(task: types.Message, add_handler_reply: types.CallbackQuery = None):
+    url: str = None
     if not add_handler_reply:
         bot.delete_message(task.from_user.id, task.message.message_id)
-    if add_handler_reply:
+    else:
+        url = task.text
         task = add_handler_reply
     _, course_name, task_current = task.data.split()
-    # TODO: send task url to manager
     manager.receive(students_info[task.from_user.id],
-                    task_current, course_name)
+                    task_current, course_name, url)
     bot.send_message(task.from_user.id,
                      f"Вы отправили {task_current} задачу по {course_name}!")
 
