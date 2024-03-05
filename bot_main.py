@@ -16,29 +16,13 @@ bot = telebot.TeleBot(TOKEN)
 manager = Manager()
 
 
-@bot.message_handler(commands=['send_pic'])
-def send_pic(message: types.Message):
-    return
-    with open("C:/Users/Home/Desktop/HelperBot/Pictures/cat.jpg", 'rb') as photo:
-        bot.send_photo(message.chat.id, photo)
-
-
-@bot.message_handler(commands=['send_gif'])
-def send_gif(message: types.Message):
-    return
-    with open("C:/Users/Home/Desktop/HelperBot/Pictures/video.mp4", 'rb') as gif:
-        bot.send_video(message.chat.id, gif)
-
-
 @bot.message_handler(commands=['help'])
 def send_message_help(message: types.Message):
     bot.reply_to(message,
                  "Этот бот создан, чтобы помочь студентам сдавать задачи по курсам нашего профиля. Вам доступны следующие команды:\n"
                  "/help - объяснение!\n"
                  "/tasks - вам будет предоставлен список задач по предметам\n"
-                 "/reset - можете воспользоваться данной командой, если вы неправильно ввели свои данные при регистрации\n"
-                 "/send_pic - отправляет фото)"
-                 "/send_gif - отправляет video)")
+                 "/reset - можете воспользоваться данной командой, если вы неправильно ввели свои данные при регистрации\n")
 
 
 def send_message(user_message: types.Message, bot_message: str, markup=None):
