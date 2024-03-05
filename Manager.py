@@ -133,8 +133,8 @@ class Manager:
         column = prefix + chr(start + second)
         return row, column
 
-    def receive(self, student: Student, task: str, course_name: str):
-        log(f"Manager: Reciecing task {task}, from {student.name}, at course {course_name}")
+    def receive(self, student: Student, task: str, course_name: str, additional: str = None):
+        log(f"Manager: Reciecing task {task}, from {student.name}, at course {course_name} with additioanl info: {additional}")
 
         group = self.groups[student.group]
 
@@ -142,8 +142,11 @@ class Manager:
 
         table_id = group.courses[course_name].table_id_teachers
 
+        if additional is None:
+            additional = student.github[course_name]
+
         self.connection.app(
-            "A2", table_id, [[task, student.name, student.tg, student.github[course_name], "", "не распределена"]])
+            "A2", table_id, [[task, student.name, student.tg, additional, "", "не распределена"]])
 
     def _write_(self, student: Student, group: Group, task: str, course_name: str, value: str) -> None:
         log(f"Manager: Writing for {student.name}, course name {course_name}, number {task} ")
