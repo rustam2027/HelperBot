@@ -94,8 +94,7 @@ class Manager:
         start, _ = self.names_range
 
         result = self.connection.read(
-            f"C{start + num}:S{start + num}", group.courses[course_name].table_id_students)[0]
-
+            f"C{start + num}:AA{start + num}", group.courses[course_name].table_id_students)[0]
         answer = []
         for i in range(len(all_tasks)):
             if i >= len(result) or result[i] == "":
@@ -192,4 +191,3 @@ def test_5():
 if __name__ == "__main__":
     manager = Manager()
     test_1()
-
