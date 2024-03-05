@@ -170,7 +170,7 @@ def get_repositories(message, courses: list, count: int, student: Student):
 def check_github_url(user_message: types.Message, request: Request):
     github_link_regex = r'(https?:\/\/)github\.com\/(.+?)\/'
 
-    if not re.match(github_link_regex, user_message.text):
+    if user_message.text is not str or not re.match(github_link_regex, user_message.text):
         msg = bot.send_message(user_message.chat.id,
                                "Ссылка невалидная! Попробуй еще раз!")
         bot.register_next_step_handler(msg, check_github_url, request)
