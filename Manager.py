@@ -48,14 +48,16 @@ class Manager:
             pickle.dump(info, file)
 
     def _init_groups(self) -> None:
+        log("Manager: initing groups from files")
         for filename in glob.glob('AdminData/*.json'):
-            log(f"Manager: init groups from {filename}")
-
             with open(filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 group, course = data['group'], data['course']
                 course_to_add = Course(
                     course, None, data['id_out'], data['id_in'])
+
+                log(f"Manager: init from {filename}, got course {course}, for group {group}")
+
                 if group in self.groups:
                     courses = self.groups[group].courses
                     if course not in courses:
@@ -157,7 +159,8 @@ class Manager:
 
 
 def test_1():
-    student_1 = Student({"C++": "Hui"}, "@HUI", "Волков Кирилл Ильич", "22126", None)
+    student_1 = Student({"C++": "Hui"}, "@HUI",
+                        "Волков Кирилл Ильич", "22126", None)
     a = [1, 2, 3, 4, 5, 6, 10, 11, 12, 24, 25, 50, 51, 52]
     for elem in a:
         manager.receive(student_1, str(elem), "C++")
